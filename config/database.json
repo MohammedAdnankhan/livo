@@ -1,0 +1,26 @@
+{
+  "development": {
+    "username": "livo_db",
+    "password": "livo_db",
+    "database": "livo_dev",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+
+  },
+  "test": {
+    "username": "livo_db",
+    "password": "livo_db",
+    "database": "livo_test",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+
+  },
+  "production": {
+    "username": "livo_db",
+    "password": "livo_db",
+    "database": "livo_prod",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+
+  }
+} 
