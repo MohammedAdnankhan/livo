@@ -27,6 +27,9 @@ const SuperAdmin = db.sequelize.define('super_admins', {
     allowNull: true,
     defaultValue: null
   }
+}, {
+  tableName: 'super_admin_table',
+  freezeTableName: true
 });
 
 module.exports = SuperAdmin;

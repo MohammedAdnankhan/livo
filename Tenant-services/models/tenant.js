@@ -45,6 +45,9 @@ const Tenant = db.sequelize.define('tenant', {
     type: DataTypes.TEXT,
     allowNull: true
   }
+}, {
+  tableName: 'tenant_table',
+  freezeTableName: true
 });
 
 module.exports = Tenant; 

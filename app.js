@@ -20,4 +20,12 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
-db.sequelize.sync({ alter: true });
+// Sync database with error handling
+db.sequelize.sync({ force: false, alter: false })
+  .then(() => {
+    console.log('✅ Database synced successfully');
+  })
+  .catch((err) => {
+    console.error('❌ Database sync error:', err.message);
+    // Don't crash the app, just log the error
+  });
