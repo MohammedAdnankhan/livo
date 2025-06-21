@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const superAdminController = require('../controllers/superAdminController');
-const authenticateToken = require('../../Utils/Middleware/auth');
+const superAdminController = require('../controllers/superAdminController.js');
+const authenticateToken = require('../../Utils/Middleware/auth.js');
 
 router.post('/super-admin/create', superAdminController.createSuperAdmin);
 router.post('/super-admin/login', superAdminController.loginSuperAdmin);

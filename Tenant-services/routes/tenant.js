@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const tenantController = require('../controllers/tenantController');
-const authenticateToken = require('../../Utils/Middleware/auth');
-const errorHandler = require('../../Utils/Middleware/errorHandler');
+const tenantController = require('../controllers/tenantController.js');
+const authenticateToken = require('../../Utils/Middleware/auth.js');
+const errorHandler = require('../../Utils/Middleware/errorHandler.js');
 
 // Create Tenant
 router.post('/', authenticateToken, tenantController.createTenant);

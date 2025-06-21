@@ -1,4 +1,4 @@
-const SuperAdmin = require('../models/SuperAdmin');
+const SuperAdmin = require('../models/superadmin.js');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 

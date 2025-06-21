@@ -1,4 +1,4 @@
-const Tenant = require('../models/tenant');
+const Tenant = require('../models/tenant.js');
 const bcrypt = require('bcryptjs');
 
 exports.createTenant = async (req, res, next) => {
