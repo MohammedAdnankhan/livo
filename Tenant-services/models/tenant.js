@@ -1,7 +1,8 @@
 const { DataTypes } = require('sequelize');
 const db = require('../../db.js');
 
-const Tenant = db.sequelize.define('Tenant', {
+// const Tenant = db.sequelize.define('Tenant', {
+const Tenant = db.sequelize.define('tenant', {
   tenant_id: {
     type: DataTypes.UUID,
     defaultValue: DataTypes.UUIDV4,

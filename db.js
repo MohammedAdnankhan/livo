@@ -13,7 +13,7 @@ if (process.env.DATABASE_PUBLIC_URL) {
     dialectOptions: {
       ssl: {
         require: true,
-        rejectUnauthorized: false, // Required for Railway's managed PostgreSQL
+        rejectUnauthorized: false,
       },
     },
   });
