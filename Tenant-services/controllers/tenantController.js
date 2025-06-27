@@ -1,15 +1,18 @@
 const Tenant = require('../models/tenant.js');
 const bcrypt = require('bcryptjs');
+const sendMail = require('../../Utils/sendMail');
 
 exports.createTenant = async (req, res, next) => {
   try {
     const { tenant_name, admin_user_email, admin_user_password, contact_email, contact_number, industry, modules_enabled, status, notes } = req.body;
     // Check if tenant with same email already exists
+ 
     let tenant = await Tenant.findOne({ where: { admin_user_email } });
     if (tenant) {
       return res.status(400).json({ message: 'Tenant already exists' });
     }
     const hashedPassword = await bcrypt.hash(admin_user_password, 10);
+ 
     tenant = await Tenant.create({
       tenant_name,
       admin_user_email,
@@ -21,6 +24,22 @@ exports.createTenant = async (req, res, next) => {
       status,
       notes
     });
+   await tenant.save()
+    // Send welcome email to admin
+    const subject = 'Welcome to Our Platform!';
+    const html = `
+      <h2>Welcome, ${tenant_name} Admin!</h2>
+      <p>Your tenant account has been created. Here are your login details:</p>
+      <ul>
+        <li><strong>Email:</strong> ${admin_user_email}</li>
+        <li><strong>Password:</strong> ${admin_user_password}</li>
+      </ul>
+      <p>Please log in and change your password after your first login.</p>
+      <br>
+      <p>Best regards,<br>Your App Team</p>
+    `;
+    await sendMail({ to: contact_email, subject, html });
+
     return res.status(201).json({ message: 'Tenant created', tenant });
   } catch (err) {
     next(err);

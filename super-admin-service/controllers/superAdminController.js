@@ -19,6 +19,7 @@ exports.createSuperAdmin = async (req, res) => {
       password: hashedPassword,
       token: null
     });
+    await superAdmin.save()
     return res.status(201).json({ message: 'SuperAdmin created', superAdmin });
   } catch (err) {
     return res.status(500).json({ message: 'Error creating SuperAdmin', error: err.message });
