@@ -33,9 +33,17 @@ const Tenant = db.sequelize.define('tenant', {
     type: DataTypes.STRING,
     allowNull: true
   },
-  modules_enabled: {
-    type: DataTypes.STRING,
-    allowNull: true
+  leasing: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+  fm: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+  visitor_management: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
   },
   status: {
     type: DataTypes.STRING,

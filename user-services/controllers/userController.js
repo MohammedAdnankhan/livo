@@ -50,7 +50,7 @@ exports.getAllUsers = async (req, res) => {
 exports.getUserById = async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await User.findByPk(id, { include: [{ model: Role, attributes: ['id', 'name'] }] });
+    const user = await User.findByPk(id, { include: [{ model: Role, as: 'role', attributes: ['id', 'name'] }] });
     if (!user) return res.status(404).json({ message: 'User not found' });
     return res.status(200).json(user);
   } catch (err) {

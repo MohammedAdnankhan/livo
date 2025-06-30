@@ -1,6 +1,8 @@
 const SuperAdmin = require('../models/superadmin.js');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const User = require('../../user-services/models/user');
+const Role = require('../../permission-service/models/roles');
 
 const SECRET = process.env.JWT_SECRET || 'supersecret';
 
@@ -29,28 +31,58 @@ exports.createSuperAdmin = async (req, res) => {
 exports.loginSuperAdmin = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-    const superAdmin = await SuperAdmin.findOne({ where: { email } });
-    if (!superAdmin) {
-      const err = new Error('Invalid Username or Password');
-      err.statusCode = 401;
-      return next(err);
+    // Try SuperAdmin first
+    let superAdmin = await SuperAdmin.findOne({ where: { email } });
+    if (superAdmin) {
+      const isMatch = await bcrypt.compare(password, superAdmin.password);
+      if (!isMatch) {
+        const err = new Error('Invalid Username or Password');
+        err.statusCode = 401;
+        return next(err);
+      }
+      const token = jwt.sign(
+        { id: superAdmin.id, name: superAdmin.name, email: superAdmin.email,author:"superAdmin" },
+        SECRET,
+        { expiresIn: '1d' }
+      );
+      superAdmin.token = token;
+      await superAdmin.save();
+      return res.status(200).json({ message: 'Login successful', token ,author:"superAdmin"});
     }
-    const isMatch = await bcrypt.compare(password, superAdmin.password);
-    if (!isMatch) {
-      const err = new Error('Invalid Username or Password');
-      err.statusCode = 401;
-      return next(err);
+    // Try User next
+    let user = await User.findOne({ where: { email }, include: [{ model: Role, as: 'role', attributes: ['id', 'name'] }] });
+    if (user) {
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        const err = new Error('Invalid Username or Password');
+        err.statusCode = 401;
+        return next(err);
+      }
+      const token = jwt.sign(
+        { id: user.user_id, name: user.full_name, email: user.email, author: 'user' , },
+        SECRET,
+        { expiresIn: '1d' }
+      );
+      user.token = token;
+      await user.save();
+      return res.status(200).json({
+        message: 'Login successful',
+        token,
+        user: {
+          id: user.user_id,
+          name: user.full_name,
+          email: user.email,
+          status: user.status,
+          author: 'User',
+          roleId: user.role_id || null,
+          roleName: user.role ? user.role.name : null
+        }
+      });
     }
-    // Token: encrypted user id + name
-    const token = jwt.sign(
-      { id: superAdmin.id, name: superAdmin.name, email: superAdmin.email },
-      SECRET,
-      { expiresIn: '1d' }
-    );
-    // Optionally update token in DB
-    superAdmin.token = token;
-    await superAdmin.save();
-    res.status(200).json({ message: 'Login successful', token });
+    // If neither found
+    const err = new Error('Invalid Username or Password');
+    err.statusCode = 401;
+    return next(err);
   } catch (err) {
     next(err);
   }

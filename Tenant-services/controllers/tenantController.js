@@ -4,15 +4,13 @@ const sendMail = require('../../Utils/sendMail');
 
 exports.createTenant = async (req, res, next) => {
   try {
-    const { tenant_name, admin_user_email, admin_user_password, contact_email, contact_number, industry, modules_enabled, status, notes } = req.body;
+    const { tenant_name, admin_user_email, admin_user_password, contact_email, contact_number, industry, leasing, fm, visitor_management, status, notes } = req.body;
     // Check if tenant with same email already exists
- 
     let tenant = await Tenant.findOne({ where: { admin_user_email } });
     if (tenant) {
       return res.status(400).json({ message: 'Tenant already exists' });
     }
     const hashedPassword = await bcrypt.hash(admin_user_password, 10);
- 
     tenant = await Tenant.create({
       tenant_name,
       admin_user_email,
@@ -20,11 +18,13 @@ exports.createTenant = async (req, res, next) => {
       contact_email,
       contact_number,
       industry,
-      modules_enabled,
+      leasing,
+      fm,
+      visitor_management,
       status,
       notes
     });
-   await tenant.save()
+    await tenant.save()
     // Send welcome email to admin
     const subject = 'Welcome to Our Platform!';
     const html = `
@@ -79,7 +79,9 @@ exports.updateTenant = async (req, res, next) => {
       'contact_email',
       'contact_number',
       'industry',
-      'modules_enabled',
+      'leasing',
+      'fm',
+      'visitor_management',
       'status',
       'notes'
     ];
