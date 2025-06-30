@@ -4,7 +4,7 @@ const sendMail = require('../../Utils/sendMail');
 
 exports.createTenant = async (req, res, next) => {
   try {
-    const { tenant_name, admin_user_email, admin_user_password, contact_email, contact_number, industry, leasing, fm, visitor_management, status, notes } = req.body;
+    const { tenant_name, admin_user_email, admin_user_password, contact_email, contact_number, industry, modules, status, notes } = req.body;
     // Check if tenant with same email already exists
     let tenant = await Tenant.findOne({ where: { admin_user_email } });
     if (tenant) {
@@ -18,13 +18,12 @@ exports.createTenant = async (req, res, next) => {
       contact_email,
       contact_number,
       industry,
-      leasing,
-      fm,
-      visitor_management,
+      modules,
       status,
       notes
     });
-    await tenant.save()
+    await tenant.save();
+
     // Send welcome email to admin
     const subject = 'Welcome to Our Platform!';
     const html = `
@@ -79,9 +78,7 @@ exports.updateTenant = async (req, res, next) => {
       'contact_email',
       'contact_number',
       'industry',
-      'leasing',
-      'fm',
-      'visitor_management',
+      'modules',
       'status',
       'notes'
     ];

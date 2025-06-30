@@ -33,18 +33,6 @@ const Tenant = db.sequelize.define('tenant', {
     type: DataTypes.STRING,
     allowNull: true
   },
-  leasing: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false,
-  },
-  fm: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false,
-  },
-  visitor_management: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false,
-  },
   status: {
     type: DataTypes.STRING,
     allowNull: false
@@ -52,7 +40,12 @@ const Tenant = db.sequelize.define('tenant', {
   notes: {
     type: DataTypes.TEXT,
     allowNull: true
-  }
+  },
+  modules: {
+    type: DataTypes.JSONB,
+    allowNull: true,
+    defaultValue: {},
+  },
 }, {
   tableName: 'tenant_table',
   freezeTableName: true
