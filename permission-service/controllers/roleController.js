@@ -151,7 +151,7 @@ exports.deletePage = async (req, res) => {
     const { id } = req.params;
     const deleted = await Page.destroy({ where: { id } });
     if (!deleted) return res.status(404).json({ success: false, code: 404, message: 'Page not found' });
-    return res.status(204).json();
+    return res.status(200).json({ success: true, code: 200, message: 'Page deleted successfully' });
   } catch (err) {
     return res.status(500).json({ success: false, code: 500, message: 'Error deleting page', error: err.message });
   }

@@ -109,7 +109,7 @@ exports.deleteTenant = async (req, res, next) => {
     if (!deleted) {
       return res.status(404).json({ success: false, code: 404, message: 'Tenant not found' });
     }
-    return res.status(204).json();
+    return res.status(200).json({ success: true, code: 200, message: 'Tenant deleted successfully' });
   } catch (err) {
     return res.status(500).json({ success: false, code: 500, message: 'Internal server error', error: err.message });
   }
