@@ -8,7 +8,7 @@ exports.createUser = async (req, res) => {
   try {
     const { full_name, email, role_id, status, password } = req.body;
     if (!full_name || !email || !role_id || !password) {
-      return res.status(400).json({ message: 'full_name, email, role_id, and password are required' });
+      return res.status(400).json({ success: false, code: 400, message: 'full_name, email, role_id, and password are required' });
     }
     const hashedPassword = await bcrypt.hash(password, 10);
     let user = await User.create({ full_name, email, role_id, status, password: hashedPassword });
@@ -30,9 +30,9 @@ exports.createUser = async (req, res) => {
     `;
     await sendMail({ to: email, subject, html });
 
-    return res.status(201).json(user);
+    return res.status(201).json({ success: true, code: 201, message: 'User created', data: user });
   } catch (err) {
-    return res.status(500).json({ message: 'Error creating user', error: err.message });
+    return res.status(500).json({ success: false, code: 500, message: 'Error creating user', error: err.message });
   }
 };
 
@@ -40,9 +40,9 @@ exports.createUser = async (req, res) => {
 exports.getAllUsers = async (req, res) => {
   try {
     const users = await User.findAll({ include: [{ model: Role, as: 'role', attributes: ['id', 'name'] }] });
-    return res.status(200).json(users);
+    return res.status(200).json({ success: true, code: 200, message: 'Users fetched', data: users });
   } catch (err) {
-    return res.status(500).json({ message: 'Error fetching users', error: err.message });
+    return res.status(500).json({ success: false, code: 500, message: 'Error fetching users', error: err.message });
   }
 };
 
@@ -51,10 +51,10 @@ exports.getUserById = async (req, res) => {
   try {
     const { id } = req.params;
     const user = await User.findByPk(id, { include: [{ model: Role, as: 'role', attributes: ['id', 'name'] }] });
-    if (!user) return res.status(404).json({ message: 'User not found' });
-    return res.status(200).json(user);
+    if (!user) return res.status(404).json({ success: false, code: 404, message: 'User not found' });
+    return res.status(200).json({ success: true, code: 200, message: 'User fetched', data: user });
   } catch (err) {
-    return res.status(500).json({ message: 'Error fetching user', error: err.message });
+    return res.status(500).json({ success: false, code: 500, message: 'Error fetching user', error: err.message });
   }
 };
 
@@ -64,12 +64,12 @@ exports.updateUser = async (req, res) => {
     const { id } = req.params;
     const { full_name, role_id, status } = req.body;
     const [updated] = await User.update({ full_name, role_id, status }, { where: { user_id: id } });
-    if (!updated) return res.status(404).json({ message: 'User not found' });
+    if (!updated) return res.status(404).json({ success: false, code: 404, message: 'User not found' });
     const user = await User.findByPk(id, { include: [{ model: Role, as: 'role', attributes: ['id', 'name'] }] });
     await user.save();
-    return res.status(200).json(user);
+    return res.status(200).json({ success: true, code: 200, message: 'User updated', data: user });
   } catch (err) {
-    return res.status(500).json({ message: 'Error updating user', error: err.message });
+    return res.status(500).json({ success: false, code: 500, message: 'Error updating user', error: err.message });
   }
 };
 
@@ -78,9 +78,9 @@ exports.deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
     const deleted = await User.destroy({ where: { user_id: id } });
-    if (!deleted) return res.status(404).json({ message: 'User not found' });
-    return res.status(200).json({ message: 'User deleted' });
+    if (!deleted) return res.status(404).json({ success: false, code: 404, message: 'User not found' });
+    return res.status(204).json();
   } catch (err) {
-    return res.status(500).json({ message: 'Error deleting user', error: err.message });
+    return res.status(500).json({ success: false, code: 500, message: 'Error deleting user', error: err.message });
   }
 }; 

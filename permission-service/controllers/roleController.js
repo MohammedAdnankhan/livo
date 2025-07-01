@@ -8,7 +8,7 @@ exports.createOrUpdateRoleWithPermissions = async (req, res) => {
   try {
     const { role_name, permissions } = req.body; // permissions: [{ page_id, can_view, can_edit, can_delete, can_update }]
     if (!role_name || !Array.isArray(permissions)) {
-      return res.status(400).json({ message: 'role_name and permissions array are required' });
+      return res.status(400).json({ success: false, code: 400, message: 'role_name and permissions array are required' });
     }
     let role = await Role.findOne({ where: { name: role_name.trim().toLowerCase() } });
     if (!role) {
@@ -27,9 +27,9 @@ exports.createOrUpdateRoleWithPermissions = async (req, res) => {
       });
     }
     // await role.save()
-    return res.status(200).json({ message: 'Role and permissions upserted', role_id: role.id });
+    return res.status(200).json({ success: true, code: 200, message: 'Role and permissions upserted', data: { role_id: role.id } });
   } catch (err) {
-    return res.status(500).json({ message: 'Error upserting role/permissions', error: err.message });
+    return res.status(500).json({ success: false, code: 500, message: 'Error upserting role/permissions', error: err.message });
   }
 };
 
@@ -43,9 +43,9 @@ exports.getAllRolesWithPermissions = async (req, res) => {
       }],
       order: [['id', 'ASC']],
     });
-    return res.status(200).json(roles);
+    return res.status(200).json({ success: true, code: 200, message: 'Roles fetched', data: roles });
   } catch (err) {
-    return res.status(500).json({ message: 'Error fetching roles', error: err.message });
+    return res.status(500).json({ success: false, code: 500, message: 'Error fetching roles', error: err.message });
   }
 };
 
@@ -63,10 +63,10 @@ exports.getPermissionsForRole = async (req, res) => {
         include: [{ model: Page, attributes: ['id', 'name'] }],
       }],
     });
-    if (!role) return res.status(404).json({ message: 'Role not found' });
-    return res.status(200).json(role);
+    if (!role) return res.status(404).json({ success: false, code: 404, message: 'Role not found' });
+    return res.status(200).json({ success: true, code: 200, message: 'Role permissions fetched', data: role });
   } catch (err) {
-    return res.status(500).json({ message: 'Error fetching role permissions', error: err.message });
+    return res.status(500).json({ success: false, code: 500, message: 'Error fetching role permissions', error: err.message });
   }
 };
 
@@ -75,7 +75,7 @@ exports.updatePermissionsForRole = async (req, res) => {
   try {
     const { role_id, permissions,role_name } = req.body; // permissions: [{ page_id, can_view, can_edit, can_delete, can_update }]
     if (!role_id || !Array.isArray(permissions)) {
-      return res.status(400).json({ message: 'role_id and permissions array are required' });
+      return res.status(400).json({ success: false, code: 400, message: 'role_id and permissions array are required' });
     }
     for (const perm of permissions) {
       await Permission.update({
@@ -89,9 +89,9 @@ exports.updatePermissionsForRole = async (req, res) => {
     }
 
 
-    return res.status(200).json({ message: 'Permissions updated' });
+    return res.status(200).json({ success: true, code: 200, message: 'Permissions updated' });
   } catch (err) {
-    return res.status(500).json({ message: 'Error updating permissions', error: err.message });
+    return res.status(500).json({ success: false, code: 500, message: 'Error updating permissions', error: err.message });
   }
 };
 
@@ -99,12 +99,12 @@ exports.updatePermissionsForRole = async (req, res) => {
 exports.deleteRole = async (req, res) => {
   try {
     const { role_id } = req.body;
-    if (!role_id) return res.status(400).json({ message: 'role_id is required' });
+    if (!role_id) return res.status(400).json({ success: false, code: 400, message: 'role_id is required' });
     const deleted = await Role.destroy({ where: { id: role_id } });
-    if (!deleted) return res.status(404).json({ message: 'Role not found' });
-    return res.status(200).json({ message: 'Role and its permissions deleted' });
+    if (!deleted) return res.status(404).json({ success: false, code: 404, message: 'Role not found' });
+    return res.status(204).json();
   } catch (err) {
-    return res.status(500).json({ message: 'Error deleting role', error: err.message });
+    return res.status(500).json({ success: false, code: 500, message: 'Error deleting role', error: err.message });
   }
 };
 
@@ -112,21 +112,21 @@ exports.deleteRole = async (req, res) => {
 exports.createPage = async (req, res) => {
   try {
     const { name } = req.body;
-    if (!name) return res.status(400).json({ message: 'Page name is required' });
+    if (!name) return res.status(400).json({ success: false, code: 400, message: 'Page name is required' });
     const page = await Page.create({ name });
     await page.save();
-    return res.status(201).json(page);
+    return res.status(201).json({ success: true, code: 201, message: 'Page created', data: page });
   } catch (err) {
-    return res.status(500).json({ message: 'Error creating page', error: err.message });
+    return res.status(500).json({ success: false, code: 500, message: 'Error creating page', error: err.message });
   }
 };
 
 exports.listPages = async (req, res) => {
   try {
     const pages = await Page.findAll();
-    return res.status(200).json(pages);
+    return res.status(200).json({ success: true, code: 200, message: 'Pages fetched', data: pages });
   } catch (err) {
-    return res.status(500).json({ message: 'Error fetching pages', error: err.message });
+    return res.status(500).json({ success: false, code: 500, message: 'Error fetching pages', error: err.message });
   }
 };
 
@@ -135,13 +135,13 @@ exports.updatePage = async (req, res) => {
   try {
     const { id } = req.params;
     const { name } = req.body;
-    if (!name) return res.status(400).json({ message: 'Page name is required' });
+    if (!name) return res.status(400).json({ success: false, code: 400, message: 'Page name is required' });
     const [updated] = await Page.update({ name }, { where: { id } });
-    if (!updated) return res.status(404).json({ message: 'Page not found' });
+    if (!updated) return res.status(404).json({ success: false, code: 404, message: 'Page not found' });
     const page = await Page.findByPk(id);
-    return res.status(200).json(page);
+    return res.status(200).json({ success: true, code: 200, message: 'Page updated', data: page });
   } catch (err) {
-    return res.status(500).json({ message: 'Error updating page', error: err.message });
+    return res.status(500).json({ success: false, code: 500, message: 'Error updating page', error: err.message });
   }
 };
 
@@ -150,10 +150,10 @@ exports.deletePage = async (req, res) => {
   try {
     const { id } = req.params;
     const deleted = await Page.destroy({ where: { id } });
-    if (!deleted) return res.status(404).json({ message: 'Page not found' });
-    return res.status(200).json({ message: 'Page deleted' });
+    if (!deleted) return res.status(404).json({ success: false, code: 404, message: 'Page not found' });
+    return res.status(204).json();
   } catch (err) {
-    return res.status(500).json({ message: 'Error deleting page', error: err.message });
+    return res.status(500).json({ success: false, code: 500, message: 'Error deleting page', error: err.message });
   }
 };
 

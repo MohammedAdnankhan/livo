@@ -11,7 +11,7 @@ exports.createSuperAdmin = async (req, res) => {
     // Check if SuperAdmin already exists
     let superAdmin = await SuperAdmin.findOne({ where: { email: 'superadmin@yopmail.com' } });
     if (superAdmin) {
-      return res.status(400).json({ message: 'SuperAdmin already exists' });
+      return res.status(400).json({ success: false, code: 400, message: 'SuperAdmin already exists' });
     }
     const hashedPassword = await bcrypt.hash('Test@1234', 10);
     const token = jwt.sign({ email: 'superadmin@yopmail.com' }, SECRET, { expiresIn: '1d' });
@@ -22,9 +22,9 @@ exports.createSuperAdmin = async (req, res) => {
       token: null
     });
     await superAdmin.save()
-    return res.status(201).json({ message: 'SuperAdmin created', superAdmin });
+    return res.status(201).json({ success: true, code: 201, message: 'SuperAdmin created', data: superAdmin });
   } catch (err) {
-    return res.status(500).json({ message: 'Error creating SuperAdmin', error: err.message });
+    return res.status(500).json({ success: false, code: 500, message: 'Error creating SuperAdmin', error: err.message });
   }
 };
 
@@ -36,36 +36,34 @@ exports.loginSuperAdmin = async (req, res, next) => {
     if (superAdmin) {
       const isMatch = await bcrypt.compare(password, superAdmin.password);
       if (!isMatch) {
-        const err = new Error('Invalid Username or Password');
-        err.statusCode = 401;
-        return next(err);
+        return res.status(401).json({ success: false, code: 401, message: 'Invalid Username or Password' });
       }
       const token = jwt.sign(
-        { id: superAdmin.id, name: superAdmin.name, email: superAdmin.email,author:"superAdmin" },
+        { id: superAdmin.id, name: superAdmin.name, email: superAdmin.email, author: 'superAdmin' },
         SECRET,
         { expiresIn: '1d' }
       );
       superAdmin.token = token;
       await superAdmin.save();
-      return res.status(200).json({ message: 'Login successful', token ,author:"superAdmin"});
+      return res.status(200).json({ success: true, code: 200, message: 'Login successful', token, author: 'superAdmin' });
     }
     // Try User next
     let user = await User.findOne({ where: { email }, include: [{ model: Role, as: 'role', attributes: ['id', 'name'] }] });
     if (user) {
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
-        const err = new Error('Invalid Username or Password');
-        err.statusCode = 401;
-        return next(err);
+        return res.status(401).json({ success: false, code: 401, message: 'Invalid Username or Password' });
       }
       const token = jwt.sign(
-        { id: user.user_id, name: user.full_name, email: user.email, author: 'user' , },
+        { id: user.user_id, name: user.full_name, email: user.email, author: 'user' },
         SECRET,
         { expiresIn: '1d' }
       );
       user.token = token;
       await user.save();
       return res.status(200).json({
+        success: true,
+        code: 200,
         message: 'Login successful',
         token,
         user: {
@@ -80,11 +78,9 @@ exports.loginSuperAdmin = async (req, res, next) => {
       });
     }
     // If neither found
-    const err = new Error('Invalid Username or Password');
-    err.statusCode = 401;
-    return next(err);
+    return res.status(401).json({ success: false, code: 401, message: 'Invalid Username or Password' });
   } catch (err) {
-    next(err);
+    return res.status(500).json({ success: false, code: 500, message: 'Error logging in', error: err.message });
   }
 };
 
@@ -93,15 +89,13 @@ exports.logoutSuperAdmin = async (req, res, next) => {
     const { id } = req.user;
     const superAdmin = await SuperAdmin.findByPk(id);
     if (!superAdmin) {
-      const err = new Error('SuperAdmin not found');
-      err.statusCode = 404;
-      return next(err);
+      return res.status(404).json({ success: false, code: 404, message: 'SuperAdmin not found' });
     }
     superAdmin.token = null;
     await superAdmin.save();
-    res.status(200).json({ message: 'Logout successful' });
+    return res.status(200).json({ success: true, code: 200, message: 'Logout successful' });
   } catch (err) {
-    next(err);
+    return res.status(500).json({ success: false, code: 500, message: 'Error logging out', error: err.message });
   }
 };
 
@@ -112,12 +106,10 @@ exports.getSuperAdminDetails = async (req, res, next) => {
       attributes: ['id', 'name', 'email']
     });
     if (!superAdmin) {
-      const err = new Error('SuperAdmin not found');
-      err.statusCode = 404;
-      return next(err);
+      return res.status(404).json({ success: false, code: 404, message: 'SuperAdmin not found' });
     }
-    res.status(200).json({ superAdmin });
+    return res.status(200).json({ success: true, code: 200, message: 'SuperAdmin details fetched', data: superAdmin });
   } catch (err) {
-    next(err);
+    return res.status(500).json({ success: false, code: 500, message: 'Error fetching SuperAdmin details', error: err.message });
   }
 }; 

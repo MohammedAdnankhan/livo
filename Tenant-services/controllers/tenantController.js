@@ -8,7 +8,7 @@ exports.createTenant = async (req, res, next) => {
     // Check if tenant with same email already exists
     let tenant = await Tenant.findOne({ where: { admin_user_email } });
     if (tenant) {
-      return res.status(400).json({ message: 'Tenant already exists' });
+      return res.status(400).json({ success: false, code: 400, message: 'Tenant already exists' });
     }
     const hashedPassword = await bcrypt.hash(admin_user_password, 10);
     tenant = await Tenant.create({
@@ -39,18 +39,18 @@ exports.createTenant = async (req, res, next) => {
     `;
     await sendMail({ to: contact_email, subject, html });
 
-    return res.status(201).json({ message: 'Tenant created', tenant });
+    return res.status(201).json({ success: true, code: 201, message: 'Tenant created', data: tenant });
   } catch (err) {
-    next(err);
+    return res.status(500).json({ success: false, code: 500, message: 'Internal server error', error: err.message });
   }
 };
 
 exports.getAllTenants = async (req, res, next) => {
   try {
     const tenants = await Tenant.findAll();
-    res.status(200).json({ tenants });
+    return res.status(200).json({ success: true, code: 200, message: 'Tenants fetched', data: tenants });
   } catch (err) {
-    next(err);
+    return res.status(500).json({ success: false, code: 500, message: 'Internal server error', error: err.message });
   }
 };
 
@@ -59,11 +59,11 @@ exports.getTenantById = async (req, res, next) => {
     const { tenant_id } = req.params;
     const tenant = await Tenant.findByPk(tenant_id);
     if (!tenant) {
-      return res.status(404).json({ message: 'Tenant not found' });
+      return res.status(404).json({ success: false, code: 404, message: 'Tenant not found' });
     }
-    res.status(200).json({ tenant });
+    return res.status(200).json({ success: true, code: 200, message: 'Tenant fetched', data: tenant });
   } catch (err) {
-    next(err);
+    return res.status(500).json({ success: false, code: 500, message: 'Internal server error', error: err.message });
   }
 };
 
@@ -93,12 +93,12 @@ exports.updateTenant = async (req, res, next) => {
     }
     const [updated] = await Tenant.update(updateData, { where: { tenant_id } });
     if (!updated) {
-      return res.status(404).json({ message: 'Tenant not found' });
+      return res.status(404).json({ success: false, code: 404, message: 'Tenant not found' });
     }
     const tenant = await Tenant.findByPk(tenant_id);
-    res.status(200).json({ message: 'Tenant updated', tenant });
+    return res.status(200).json({ success: true, code: 200, message: 'Tenant updated', data: tenant });
   } catch (err) {
-    next(err);
+    return res.status(500).json({ success: false, code: 500, message: 'Internal server error', error: err.message });
   }
 };
 
@@ -107,10 +107,10 @@ exports.deleteTenant = async (req, res, next) => {
     const { tenant_id } = req.params;
     const deleted = await Tenant.destroy({ where: { tenant_id } });
     if (!deleted) {
-      return res.status(404).json({ message: 'Tenant not found' });
+      return res.status(404).json({ success: false, code: 404, message: 'Tenant not found' });
     }
-    res.status(200).json({ message: 'Tenant deleted' });
+    return res.status(204).json();
   } catch (err) {
-    next(err);
+    return res.status(500).json({ success: false, code: 500, message: 'Internal server error', error: err.message });
   }
 }; 
