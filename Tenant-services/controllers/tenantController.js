@@ -1,14 +1,18 @@
 const Tenant = require('../models/tenant.js');
 const bcrypt = require('bcryptjs');
 const sendMail = require('../../Utils/sendMail');
+const Log = require('../../logs-service/models/log');
+
 
 exports.createTenant = async (req, res, next) => {
+  req.logMeta = { entity: 'Tenant', entity_id: null, action: 'create' };
   try {
     const { tenant_name, admin_user_email, admin_user_password, contact_email, contact_number, industry, modules, status, notes } = req.body;
     // Check if tenant with same email already exists
     let tenant = await Tenant.findOne({ where: { admin_user_email } });
     if (tenant) {
-      return res.status(400).json({ success: false, code: 400, message: 'Tenant already exists' });
+      res.status(400).json({ success: false, code: 400, message: 'Tenant already exists' });
+      return next();
     }
     const hashedPassword = await bcrypt.hash(admin_user_password, 10);
     tenant = await Tenant.create({
@@ -38,27 +42,14 @@ exports.createTenant = async (req, res, next) => {
       <p>Best regards,<br>Your App Team</p>
     `;
     await sendMail({ to: contact_email, subject, html });
-    await Log.create({
-      user_id: req.user.id,
-      email: req.user.email,
-      action: 'create',
-      entity: 'Tenant',
-      entity_id: tenant.tenant_id,
-      status: 'success',
-      reason: null
-    });
-    return res.status(201).json({ success: true, code: 201, message: 'Tenant created', data: tenant });
+ 
+    req.logMeta = { entity: 'Tenant', entity_id: tenant.tenant_id, action: 'create' };
+    res.status(201).json({ success: true, code: 201, message: 'Tenant created', data: tenant });
+    return next();
   } catch (err) {
-    await Log.create({
-      user_id: "",
-      email: "",
-      action: 'create',
-      entity: 'Tenant',
-      entity_id:"",
-      status: 'failed',
-      reason: null
-    });
-    return res.status(500).json({ success: false, code: 500, message: 'Internal server error', error: err.message });
+    req.logMeta = { entity: 'Tenant', entity_id: null, action: 'create' };
+    res.status(500).json({ success: false, code: 500, message: 'Internal server error', error: err.message });
+    return next();
   }
 };
 

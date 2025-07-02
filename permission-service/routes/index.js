@@ -2,13 +2,14 @@ const express = require('express');
 const router = express.Router();
 const roleController = require('../controllers/roleController');
 const authenticateToken = require('../../Utils/Middleware/auth.js');
+const logEntry = require('../../Utils/Middleware/logEntry.js');
 
 // Role and Permission CRUD (protected)
-router.post('/role/upsert', authenticateToken, roleController.createOrUpdateRoleWithPermissions);
+router.post('/role/upsert', authenticateToken, roleController.createRoleWithPermissions,logEntry);
 router.get('/roles', authenticateToken, roleController.getAllRolesWithPermissions);
 router.get('/role/permissions', authenticateToken, roleController.getPermissionsForRole);
-router.put('/role/permissions', authenticateToken, roleController.updatePermissionsForRole);
-router.delete('/role', authenticateToken, roleController.deleteRole);
+router.put('/role/permissions', authenticateToken, logEntry,roleController.updatePermissionsForRole);
+router.delete('/role', authenticateToken, logEntry,roleController.deleteRole);
 
 // Page CRUD (protected)
 router.post('/page', authenticateToken, roleController.createPage);

@@ -25,7 +25,7 @@ const Log = db.sequelize.define('logs', {
   },
   entity_id: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   status: {
     type: DataTypes.STRING,

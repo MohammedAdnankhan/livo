@@ -4,11 +4,13 @@ const Permission = require('../models/permissions');
 const { Op } = require('sequelize');
 
 // 1. Create/Update Role with Permissions
-exports.createOrUpdateRoleWithPermissions = async (req, res) => {
+exports.createRoleWithPermissions = async (req, res, next) => {
+  req.logMeta = { entity: 'Role', entity_id: null, action: 'create' };
   try {
     const { role_name, permissions } = req.body; // permissions: [{ page_id, can_view, can_edit, can_delete, can_update }]
     if (!role_name || !Array.isArray(permissions)) {
-      return res.status(400).json({ success: false, code: 400, message: 'role_name and permissions array are required' });
+      res.status(400).json({ success: false, code: 400, message: 'role_name and permissions array are required' });
+      return next();
     }
     let role = await Role.findOne({ where: { name: role_name.trim().toLowerCase() } });
     if (!role) {
@@ -26,10 +28,13 @@ exports.createOrUpdateRoleWithPermissions = async (req, res) => {
         can_update: !!perm.can_update,
       });
     }
-    // await role.save()
-    return res.status(200).json({ success: true, code: 200, message: 'Role and permissions upserted', data: { role_id: role.id } });
+    req.logMeta = { entity: 'Role', entity_id: role.id, action: 'create' };
+    res.status(200).json({ success: true, code: 200, message: 'Role and permissions upserted', data: { role_id: role.id } });
+    return next();
   } catch (err) {
-    return res.status(500).json({ success: false, code: 500, message: 'Error upserting role/permissions', error: err.message });
+    req.logMeta = { entity: 'Role', entity_id: null, action: 'create' };
+    res.status(500).json({ success: false, code: 500, message: 'Error upserting role/permissions', error: err.message });
+    return next();
   }
 };
 

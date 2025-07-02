@@ -4,7 +4,8 @@ const sendMail = require('../../Utils/sendMail');
 const bcrypt = require('bcryptjs');
 
 // Create a new user
-exports.createUser = async (req, res) => {
+exports.createUser = async (req, res,next) => {
+  req.logMeta = { entity: 'User', entity_id: null, action: 'create' };
   try {
     const { full_name, email, role_id, status, password } = req.body;
     if (!full_name || !email || !role_id || !password) {
@@ -29,10 +30,15 @@ exports.createUser = async (req, res) => {
       <p>Best regards,<br>Your App Team</p>
     `;
     await sendMail({ to: email, subject, html });
-
-    return res.status(201).json({ success: true, code: 201, message: 'User created', data: user });
+    req.logMeta = { entity: 'User', entity_id: user.user_id || user.id, action: 'create' };
+     res.status(201).json({ success: true, code: 201, message: 'User created', data: user });
+     return next();
+    
   } catch (err) {
-    return res.status(500).json({ success: false, code: 500, message: 'Error creating user', error: err.message });
+    req.logMeta = { entity: 'User', entity_id: null, action: 'create' };
+     res.status(500).json({ success: false, code: 500, message: 'Error creating user', error: err.message });
+    return next();
+
   }
 };
 
