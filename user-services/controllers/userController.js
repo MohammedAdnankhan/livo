@@ -39,7 +39,10 @@ exports.createUser = async (req, res) => {
 // Get all users
 exports.getAllUsers = async (req, res) => {
   try {
-    const users = await User.findAll({ include: [{ model: Role, as: 'role', attributes: ['id', 'name'] }] });
+    const users = await User.findAll({ 
+      include: [{ model: Role, as: 'role', attributes: ['id', 'name'] }],
+      order: [['createdAt', 'DESC']]
+    });
     return res.status(200).json({ success: true, code: 200, message: 'Users fetched', data: users });
   } catch (err) {
     return res.status(500).json({ success: false, code: 500, message: 'Error fetching users', error: err.message });
@@ -82,5 +85,25 @@ exports.deleteUser = async (req, res) => {
     return res.status(200).json({ success: true, code: 200, message: 'User deleted successfully' });
   } catch (err) {
     return res.status(500).json({ success: false, code: 500, message: 'Error deleting user', error: err.message });
+  }
+};
+
+exports.getUsersOverview = async (req, res) => {
+  try {
+    const totalUsers = await User.count();
+    const activeUsers = await User.count({ where: { status: 'Active' } });
+    const inactiveUsers = await User.count({ where: { status: 'Inactive' } });
+    return res.status(200).json({
+      success: true,
+      code: 200,
+      message: 'User overview fetched',
+      data: {
+        totalUsers,
+        activeUsers,
+        inactiveUsers
+      }
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, code: 500, message: 'Error fetching user overview', error: err.message });
   }
 }; 

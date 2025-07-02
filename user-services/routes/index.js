@@ -10,4 +10,7 @@ router.get('/:id', authenticateToken, userController.getUserById);
 router.put('/:id', authenticateToken, userController.updateUser);
 router.delete('/:id', authenticateToken, userController.deleteUser);
 
+// User Overview
+router.get('/all/users/overview', authenticateToken, userController.getUsersOverview);
+
 module.exports = router; 

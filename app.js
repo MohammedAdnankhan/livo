@@ -10,6 +10,7 @@ const permissionRoutes = require('./permission-service/routes/index.js');
 const errorHandler = require('./Utils/Middleware/errorHandler.js');
 const tenantRoutes = require('./Tenant-services/routes/index.js');
 const userRoutes = require('./user-services/routes/index.js');
+const logRoutes = require('./logs-service/routes/index.js');
 
 app.use(express.json()); // Parse JSON bodies
 app.use(cors()); // Enable CORS
@@ -19,6 +20,7 @@ app.use('/api', superAdminRoutes);
 app.use('/api', tenantRoutes);
 app.use('/api/permission', permissionRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api', logRoutes);
 app.use(errorHandler);
 
 // Sync database with error handling, then start server

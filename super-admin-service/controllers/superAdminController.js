@@ -86,14 +86,26 @@ exports.loginSuperAdmin = async (req, res, next) => {
 
 exports.logoutSuperAdmin = async (req, res, next) => {
   try {
-    const { id } = req.user;
-    const superAdmin = await SuperAdmin.findByPk(id);
-    if (!superAdmin) {
-      return res.status(404).json({ success: false, code: 404, message: 'SuperAdmin not found' });
+    const { id, author } = req.user;
+    if (author === 'superAdmin') {
+      const superAdmin = await SuperAdmin.findByPk(id);
+      if (!superAdmin) {
+        return res.status(404).json({ success: false, code: 404, message: 'SuperAdmin not found' });
+      }
+      superAdmin.token = null;
+      await superAdmin.save();
+      return res.status(200).json({ success: true, code: 200, message: 'Logout successful' });
+    } else if (author === 'user') {
+      const user = await User.findByPk(id);
+      if (!user) {
+        return res.status(404).json({ success: false, code: 404, message: 'User not found' });
+      }
+      user.token = null;
+      await user.save();
+      return res.status(200).json({ success: true, code: 200, message: 'Logout successful' });
+    } else {
+      return res.status(400).json({ success: false, code: 400, message: 'Invalid user type' });
     }
-    superAdmin.token = null;
-    await superAdmin.save();
-    return res.status(200).json({ success: true, code: 200, message: 'Logout successful' });
   } catch (err) {
     return res.status(500).json({ success: false, code: 500, message: 'Error logging out', error: err.message });
   }
@@ -101,15 +113,25 @@ exports.logoutSuperAdmin = async (req, res, next) => {
 
 exports.getSuperAdminDetails = async (req, res, next) => {
   try {
-    const { id } = req.user;
-    const superAdmin = await SuperAdmin.findByPk(id, {
-      attributes: ['id', 'name', 'email']
-    });
-    if (!superAdmin) {
-      return res.status(404).json({ success: false, code: 404, message: 'SuperAdmin not found' });
+    const { id, author } = req.user;
+    if (author === 'superAdmin') {
+      const superAdmin = await SuperAdmin.findByPk(id, {
+        attributes: ['id', 'name', 'email']
+      });
+      if (!superAdmin) {
+        return res.status(404).json({ success: false, code: 404, message: 'SuperAdmin not found' });
+      }
+      return res.status(200).json({ success: true, code: 200, message: 'SuperAdmin details fetched', data: superAdmin });
+    } else if (author === 'user') {
+      const user = await User.findByPk(id, { include: [{ model: Role, as: 'role', attributes: ['id', 'name'] }] });
+      if (!user) {
+        return res.status(404).json({ success: false, code: 404, message: 'User not found' });
+      }
+      return res.status(200).json({ success: true, code: 200, message: 'User details fetched', data: user });
+    } else {
+      return res.status(400).json({ success: false, code: 400, message: 'Invalid user type' });
     }
-    return res.status(200).json({ success: true, code: 200, message: 'SuperAdmin details fetched', data: superAdmin });
   } catch (err) {
-    return res.status(500).json({ success: false, code: 500, message: 'Error fetching SuperAdmin details', error: err.message });
+    return res.status(500).json({ success: false, code: 500, message: 'Error fetching details', error: err.message });
   }
 }; 

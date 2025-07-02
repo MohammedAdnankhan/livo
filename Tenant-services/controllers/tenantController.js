@@ -38,16 +38,33 @@ exports.createTenant = async (req, res, next) => {
       <p>Best regards,<br>Your App Team</p>
     `;
     await sendMail({ to: contact_email, subject, html });
-
+    await Log.create({
+      user_id: req.user.id,
+      email: req.user.email,
+      action: 'create',
+      entity: 'Tenant',
+      entity_id: tenant.tenant_id,
+      status: 'success',
+      reason: null
+    });
     return res.status(201).json({ success: true, code: 201, message: 'Tenant created', data: tenant });
   } catch (err) {
+    await Log.create({
+      user_id: "",
+      email: "",
+      action: 'create',
+      entity: 'Tenant',
+      entity_id:"",
+      status: 'failed',
+      reason: null
+    });
     return res.status(500).json({ success: false, code: 500, message: 'Internal server error', error: err.message });
   }
 };
 
 exports.getAllTenants = async (req, res, next) => {
   try {
-    const tenants = await Tenant.findAll();
+    const tenants = await Tenant.findAll({ order: [['createdAt', 'DESC']] });
     return res.status(200).json({ success: true, code: 200, message: 'Tenants fetched', data: tenants });
   } catch (err) {
     return res.status(500).json({ success: false, code: 500, message: 'Internal server error', error: err.message });
@@ -112,5 +129,25 @@ exports.deleteTenant = async (req, res, next) => {
     return res.status(200).json({ success: true, code: 200, message: 'Tenant deleted successfully' });
   } catch (err) {
     return res.status(500).json({ success: false, code: 500, message: 'Internal server error', error: err.message });
+  }
+};
+
+exports.getTenantOverview = async (req, res) => {
+  try {
+    const totalTenants = await Tenant.count();
+    const activeTenants = await Tenant.count({ where: { status: 'Active' } });
+    const inactiveTenants = await Tenant.count({ where: { status: 'Inactive' } });
+    return res.status(200).json({
+      success: true,
+      code: 200,
+      message: 'Tenant overview fetched',
+      data: {
+        totalTenants,
+        activeTenants,
+        inactiveTenants
+      }
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, code: 500, message: 'Error fetching tenant overview', error: err.message });
   }
 }; 
