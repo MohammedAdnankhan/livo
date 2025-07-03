@@ -7,7 +7,7 @@ const Log = require('../../logs-service/models/log');
 exports.createTenant = async (req, res, next) => {
   req.logMeta = { entity: 'Tenant', entity_id: null, action: 'create' };
   try {
-    const { tenant_name, admin_user_email, admin_user_password, contact_email, contact_number, industry, modules, status, notes } = req.body;
+    const { tenant_name, admin_user_email, admin_user_password, contact_email, contact_number, industry, modules, status, notes, user_add_limit } = req.body;
     // Check if tenant with same email already exists
     let tenant = await Tenant.findOne({ where: { admin_user_email } });
     if (tenant) {
@@ -24,7 +24,8 @@ exports.createTenant = async (req, res, next) => {
       industry,
       modules,
       status,
-      notes
+      notes,
+      user_add_limit
     });
     await tenant.save();
 
@@ -88,7 +89,8 @@ exports.updateTenant = async (req, res, next) => {
       'industry',
       'modules',
       'status',
-      'notes'
+      'notes',
+      'user_add_limit'
     ];
     const updateData = {};
     for (const field of allowedFields) {

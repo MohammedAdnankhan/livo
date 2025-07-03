@@ -46,6 +46,11 @@ const Tenant = db.sequelize.define('tenant', {
     allowNull: true,
     defaultValue: {},
   },
+  user_add_limit: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    defaultValue: null,
+  },
 }, {
   tableName: 'tenant_table',
   freezeTableName: true
