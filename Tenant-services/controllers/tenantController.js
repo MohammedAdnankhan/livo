@@ -182,7 +182,7 @@ exports.tenantLogin = async (req, res, next) => {
       const accessToken = jwt.sign({ email, type: 'admin', tenant_id: tenant.tenant_id }, SECRET, { expiresIn: '1h' });
       const refreshToken = '';
       const a_t = 'admin';
-      return res.status(200).json({ accessToken, refreshToken, a_t, sidebarData,tenant});
+      return res.status(200).json({ accessToken, refreshToken, a_t, sidebarData,tenant,success: true, code:200});
     }
     // 2. If not found in tenant, check TenantUser table for user login
     const user = await TenantUser.findOne({ where: { email }, attributes: { include: ['password'] } });
@@ -195,7 +195,7 @@ exports.tenantLogin = async (req, res, next) => {
       const accessToken = jwt.sign({ id: user.user_id, email: user.email, type: 'tenant_user', tenant_id: user.tenant_id }, SECRET, { expiresIn: '1h' });
       const refreshToken = '';
       const a_t = 'tenant_user';
-      return res.status(200).json({ accessToken, refreshToken, a_t ,user});
+      return res.status(200).json({ accessToken, refreshToken, a_t ,user , success: true, code:200});
     }
     return res.status(401).json({ success: false, code: 401, message: 'Invalid credentials' });
   } catch (err) {
