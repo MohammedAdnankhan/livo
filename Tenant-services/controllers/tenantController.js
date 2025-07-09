@@ -2,6 +2,10 @@ const Tenant = require('../models/tenant.js');
 const bcrypt = require('bcryptjs');
 const sendMail = require('../../Utils/sendMail');
 const Log = require('../../logs-service/models/log');
+const Administrator = require('../models/Admin');
+const jwt = require('jsonwebtoken');
+const SECRET = process.env.JWT_SECRET || 'supersecret';
+const TenantUser = require('../models/tenant_user.js'); // Added TenantUser import
 
 
 exports.createTenant = async (req, res, next) => {
@@ -29,6 +33,18 @@ exports.createTenant = async (req, res, next) => {
     });
     await tenant.save();
 
+    // Create the Administrator for this tenant
+    await Administrator.create({
+      name: tenant_name,
+      email: admin_user_email,
+      countryCode: '+1', // Default country code
+      mobileNumber: contact_number || '9999', // fallback to a valid dummy number
+      profilePicture: '',
+      role: 'Admin',
+      password: hashedPassword,
+      propertyId: null // or set if you have a propertyId
+    });
+
     // Send welcome email to admin
     const subject = 'Welcome to Our Platform!';
     const html = `
@@ -43,7 +59,7 @@ exports.createTenant = async (req, res, next) => {
       <p>Best regards,<br>Your App Team</p>
     `;
     await sendMail({ to: contact_email, subject, html });
- 
+
     req.logMeta = { entity: 'Tenant', entity_id: tenant.tenant_id, action: 'create' };
     res.status(201).json({ success: true, code: 201, message: 'Tenant created', data: tenant });
     return next();
@@ -143,4 +159,51 @@ exports.getTenantOverview = async (req, res) => {
   } catch (err) {
     return res.status(500).json({ success: false, code: 500, message: 'Error fetching tenant overview', error: err.message });
   }
+};
+
+exports.tenantLogin = async (req, res, next) => {
+  try {
+    const { email, password,  } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ success: false, code: 400, message: 'Email and password are required' });
+    }
+    // 1. Try to find in tenant table first
+    let tenant = await Tenant.findOne({ where: { admin_user_email: email } });
+    if (tenant) {
+      // Compare password with tenant.admin_user_password
+      const isMatch = await bcrypt.compare(password, tenant.admin_user_password);
+      if (!isMatch) {
+        return res.status(401).json({ success: false, code: 401, message: 'Invalid credentials' });
+      }
+      // sidebarData: keys of modules with can_view true
+      const modules = tenant.modules || {};
+      const sidebarData = Object.keys(modules).filter(key => modules[key] && modules[key].can_view);
+      // Generate JWT access token
+      const accessToken = jwt.sign({ email, type: 'admin', tenant_id: tenant.tenant_id }, SECRET, { expiresIn: '1h' });
+      const refreshToken = '';
+      const a_t = 'admin';
+      return res.status(200).json({ accessToken, refreshToken, a_t, sidebarData,tenant});
+    }
+    // 2. If not found in tenant, check TenantUser table for user login
+    const user = await TenantUser.findOne({ where: { email }, attributes: { include: ['password'] } });
+    if (user) {
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res.status(401).json({ success: false, code: 401, message: 'Invalid credentials' });
+      }
+      // No sidebarData logic, just return a_t: 'tenant_user'
+      const accessToken = jwt.sign({ id: user.user_id, email: user.email, type: 'tenant_user', tenant_id: user.tenant_id }, SECRET, { expiresIn: '1h' });
+      const refreshToken = '';
+      const a_t = 'tenant_user';
+      return res.status(200).json({ accessToken, refreshToken, a_t ,user});
+    }
+    return res.status(401).json({ success: false, code: 401, message: 'Invalid credentials' });
+  } catch (err) {
+    return res.status(500).json({ success: false, code: 500, message: 'Internal server error', error: err.message });
+  }
+};
+
+exports.tenantLogout = async (req, res, next) => {
+  // JWT is stateless; just respond success
+  return res.status(200).json({ success: true, code: 200, message: 'Logged out' });
 }; 

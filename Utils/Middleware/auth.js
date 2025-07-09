@@ -17,6 +17,8 @@ function authenticateToken(req, res, next) {
       return next(error);
     }
     req.user = user;
+    // console.log(user,"TokenDATA ---->")
+
     next();
   });
 }
