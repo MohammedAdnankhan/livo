@@ -46,6 +46,22 @@ const TenantUser = db.sequelize.define('tenant_user', {
   timestamps: false
 });
 
-TenantUser.belongsTo(TenantUsersPermission, { foreignKey: 'role_id', as: 'role' });
+// last one 
+// TenantUser.belongsTo(TenantUsersPermission, { foreignKey: 'role_id', as: 'role' });
+
+
+TenantUsersPermission.hasMany(TenantUser, {
+  foreignKey: 'role_id', // User table has role_id pointing to TenantUsersPermission
+  as: 'users', // Multiple users can have the same permission/role
+});
+ 
+// In User.js (or TenantUser.js)
+TenantUser.belongsTo(TenantUsersPermission, {
+  foreignKey: 'role_id', // User table has role_id column
+  as: 'permission', // Each user belongs to one permission/role
+  onDelete: 'SET NULL'
+});
+ 
+
 
 module.exports = TenantUser; 

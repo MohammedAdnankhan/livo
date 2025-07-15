@@ -1,7 +1,12 @@
 const TenantUser = require('../models/tenant_user');
 const Tenant = require('../models/tenant');
 const bcrypt = require('bcryptjs');
-
+const Role = require('../../permission-service/models/roles');
+const Page = require('../../permission-service/models/pages');
+const Permission = require('../../permission-service/models/permissions');
+const { Op } = require('sequelize');
+const TenantUsersPermission = require('../models/tenant_users_permission');
+const { tenantCategories } = require('../../Utils/constant');
 // Create Tenant User
 exports.createTenantUser = async (req, res, next) => {
   req.logMeta = { entity: 'TenantUser', entity_id: null, action: 'create' };
@@ -50,16 +55,39 @@ exports.getAllTenantUsers = async (req, res, next) => {
   try {
     const { tenant_id } = req.query;
     const where = tenant_id ? { tenant_id } : {};
+    // const users = await TenantUser.findAll({
+    //   where,
+    //   order: [['created_at', 'DESC']]
+    // });
+    
     const users = await TenantUser.findAll({
       where,
+      include: [{
+        model: TenantUsersPermission,
+        as: 'permission',
+        attributes: ['role_id', 'role_name', 'modules', 'tenant_id']
+      }],
       order: [['created_at', 'DESC']]
     });
-    res.status(200).json({ success: true, code: 200, message: 'Tenant users fetched', data: users });
+
+
+    
+    res.status(200).json({ success: true, code: 200, message: 'Tenant users fetched', data: users  ,});
     return next && next();
   } catch (err) {
     res.status(500).json({ success: false, code: 500, message: 'Internal server error', error: err.message });
     return next && next();
   }z
+};
+exports.getAllCategory = async (req, res, next) => {
+  try {
+    console.log("here try")
+      return res.status(200).json({ success: true, code: 200, message: 'Tenants Category fetched', data: tenantCategories, } );
+  } catch (err) {
+    console.log("false try")
+
+    return res.status(500).json({ success: false, code: 500, message: 'Internal server error', error: err.message });
+  }
 };
 
 // Get Tenant User by ID

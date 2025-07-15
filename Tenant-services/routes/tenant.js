@@ -20,6 +20,11 @@ router.put('/:tenant_id', authenticateToken, logEntry, tenantController.updateTe
 router.delete('/:tenant_id', authenticateToken, logEntry, tenantController.deleteTenant);
 // Tenant Overview
 
+// Tenant Category 
+// Get All Tenants
+
+
+router.get('/tenant/category', authenticateToken, tenantUserController.getAllCategory);
 // Tenant User CRUD
 router.post('/tenant-users', authenticateToken, tenantUserController.createTenantUser, logEntry);
 router.get('/tenant-users/all', authenticateToken, tenantUserController.getAllTenantUsers);

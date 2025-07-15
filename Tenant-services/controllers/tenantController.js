@@ -6,7 +6,10 @@ const Administrator = require('../models/Admin');
 const jwt = require('jsonwebtoken');
 const SECRET = process.env.JWT_SECRET || 'supersecret';
 const TenantUser = require('../models/tenant_user.js'); // Added TenantUser import
-
+const { tenantCategories } = require('../../Utils/constant.js');
+// const Role = require('../../permission-service/models/roles');
+// const Page = require('../../permission-service/models/pages');
+// const Permission = require('../models/permissions');
 
 exports.createTenant = async (req, res, next) => {
   req.logMeta = { entity: 'Tenant', entity_id: null, action: 'create' };
@@ -73,11 +76,14 @@ exports.createTenant = async (req, res, next) => {
 exports.getAllTenants = async (req, res, next) => {
   try {
     const tenants = await Tenant.findAll({ order: [['createdAt', 'DESC']] });
-    return res.status(200).json({ success: true, code: 200, message: 'Tenants fetched', data: tenants });
+    
+   
+    return res.status(200).json({ success: true, code: 200, message: 'Tenants fetched', data: tenants, } );
   } catch (err) {
     return res.status(500).json({ success: false, code: 500, message: 'Internal server error', error: err.message });
   }
 };
+
 
 exports.getTenantById = async (req, res, next) => {
   try {
@@ -95,11 +101,11 @@ exports.getTenantById = async (req, res, next) => {
 exports.updateTenant = async (req, res, next) => {
   try {
     const { tenant_id } = req.params;
-    // Only allow updatable fields
+    
+    // Only allow updatable fields (removed admin_user_password)
     const allowedFields = [
       'tenant_name',
       'admin_user_email',
-      'admin_user_password',
       'contact_email',
       'contact_number',
       'industry',
@@ -108,21 +114,32 @@ exports.updateTenant = async (req, res, next) => {
       'notes',
       'user_add_limit'
     ];
+    
     const updateData = {};
     for (const field of allowedFields) {
       if (req.body[field] !== undefined) {
         updateData[field] = req.body[field];
       }
     }
-    if (updateData.admin_user_password) {
-      updateData.admin_user_password = await bcrypt.hash(updateData.admin_user_password, 10);
-    }
+    
     const [updated] = await Tenant.update(updateData, { where: { tenant_id } });
+    
     if (!updated) {
-      return res.status(404).json({ success: false, code: 404, message: 'Tenant not found' });
+      return res.status(404).json({ 
+        success: false, 
+        code: 404, 
+        message: 'Tenant not found' 
+      });
     }
+    
     const tenant = await Tenant.findByPk(tenant_id);
-    return res.status(200).json({ success: true, code: 200, message: 'Tenant updated', data: tenant });
+    
+    return res.status(200).json({ 
+      success: true, 
+      code: 200, 
+      message: 'Tenant updated', 
+      data: tenant 
+    });
   } catch (err) {
     return res.status(500).json({ success: false, code: 500, message: 'Internal server error', error: err.message });
   }

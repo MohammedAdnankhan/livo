@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const db = require('../../db.js');
+const User = require('../../user-services/models/user.js');
 
 const TenantUsersPermission = db.sequelize.define('tenant_users_permission', {
   role_id: {
@@ -25,5 +26,8 @@ const TenantUsersPermission = db.sequelize.define('tenant_users_permission', {
   freezeTableName: true,
   timestamps: false
 });
+
+
+
 
 module.exports = TenantUsersPermission; 
