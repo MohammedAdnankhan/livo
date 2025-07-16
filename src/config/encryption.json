@@ -1,0 +1,11 @@
+{
+  "development": {
+    "SECRET_KEY": "db14fe5d41d63a6e716e5d101d2693368cdcfb08"
+  },
+  "staging": {
+    "SECRET_KEY": "a3886598e844107d51cec39eae6720f237c2384d"
+  },
+  "production": {
+    "SECRET_KEY": "7209c620b9b7c2600600c07511887a73f9759ed8"
+  }
+}

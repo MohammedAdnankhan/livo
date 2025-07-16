@@ -1,0 +1,472 @@
+"use strict";
+
+module.exports = {
+  async up(queryInterface, Sequelize) {
+    /**
+     * Add seed commands here.
+     *
+     * Example:
+     * await queryInterface.bulkInsert('People', [{
+     *   name: 'John Doe',
+     *   isBetaMember: false
+     * }], {});
+     */
+    await queryInterface.bulkInsert(
+      "visitor_types",
+      [
+        {
+          id: "124eea10-9850-11ec-ab04-27a3095dd988",
+          category_en: "Home Services",
+          category_ar: "خدمات منزلية",
+          company_en: null,
+          company_ar: null,
+          image:
+            "https://livoprod.s3.us-east-2.amazonaws.com/home-services-1657900090813.png",
+          priority: 2,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+        {
+          id: "ab5c9ad0-a512-11ec-ab00-eb0d24eb5def",
+          category_en: "Daily Help",
+          category_ar: "المساعدة اليومية",
+          company_en: "Cook",
+          company_ar: "يطبخ",
+          image:
+            "https://livoprod.s3.us-east-2.amazonaws.com/Cook-2-1657900090780.png",
+          priority: 2,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+        {
+          id: "18a486c0-a513-11ec-ab00-eb0d24eb5def",
+          category_en: "Daily Help",
+          category_ar: "المساعدة اليومية",
+          company_en: "Gym Instructor",
+          company_ar: "مدرب رياضي",
+          image:
+            "https://livoprod.s3.us-east-2.amazonaws.com/Gym-Instructor-2-1657900090780.png",
+          priority: 2,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+        {
+          id: "35401300-9850-11ec-ab04-27a3095dd988",
+          category_en: "Daily Help",
+          category_ar: "المساعدة اليومية",
+          company_en: null,
+          company_ar: null,
+          image:
+            "https://livoprod.s3.us-east-2.amazonaws.com/daily-help-1657900090813.png",
+          priority: 2,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+        {
+          id: "57229c70-956e-11ec-b4f0-d324d1012e50",
+          category_en: "Delivery",
+          category_ar: "توصيل",
+          company_en: "Amazon",
+          company_ar: "أمازون",
+          image:
+            "https://livoprod.s3.us-east-2.amazonaws.com/amazon-1657900090615.png",
+          priority: 2,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+        {
+          id: "ce161e60-956e-11ec-b4f0-d324d1012e50",
+          category_en: "Delivery",
+          category_ar: "توصيل",
+          company_en: "Noon",
+          company_ar: "نون",
+          image:
+            "https://livoprod.s3.us-east-2.amazonaws.com/noon-1657900090614.jpg",
+          priority: 2,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+        {
+          id: "1f9dea80-a512-11ec-871e-ddd96699fab4",
+          category_en: "Daily Help",
+          category_ar: "المساعدة اليومية",
+          company_en: "Cleaner",
+          company_ar: "منظف",
+          image:
+            "https://livoprod.s3.us-east-2.amazonaws.com/Cleaner-2-1657900090780.png",
+          priority: 2,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+        {
+          id: "29b02c10-9570-11ec-b4f0-d324d1012e50",
+          category_en: "Delivery",
+          category_ar: "توصيل",
+          company_en: "Namshi",
+          company_ar: "نمشي",
+          image:
+            "https://livoprod.s3.us-east-2.amazonaws.com/namshi-1657900090568.jpg",
+          priority: 2,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+        {
+          id: "83d605c0-9570-11ec-b4f0-d324d1012e50",
+          category_en: "Delivery",
+          category_ar: "توصيل",
+          company_en: "Asos",
+          company_ar: "أسوس",
+          image:
+            "https://livoprod.s3.us-east-2.amazonaws.com/Asos-1657900090563.png",
+          priority: 2,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+        {
+          id: "d0027320-9570-11ec-b4f0-d324d1012e50",
+          category_en: "Delivery",
+          category_ar: "توصيل",
+          company_en: "Carrefour",
+          company_ar: "كارفور",
+          image:
+            "https://livoprod.s3.us-east-2.amazonaws.com/carrefour-1657900090566.png",
+          priority: 2,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+        {
+          id: "faaf21e0-9570-11ec-b4f0-d324d1012e50",
+          category_en: "Delivery",
+          category_ar: "توصيل",
+          company_en: "FirstCry",
+          company_ar: "فيرست كراي",
+          image:
+            "https://livoprod.s3.us-east-2.amazonaws.com/FirstCry-1657900090550.jpg",
+          priority: 2,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+        {
+          id: "1b5c0020-9571-11ec-b4f0-d324d1012e50",
+          category_en: "Delivery",
+          category_ar: "توصيل",
+          company_en: "Ikea",
+          company_ar: "إيكيا",
+          image:
+            "https://livoprod.s3.us-east-2.amazonaws.com/IKEA-1657900090539.jpg",
+          priority: 2,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+        {
+          id: "465c7430-9571-11ec-b4f0-d324d1012e50",
+          category_en: "Delivery",
+          category_ar: "توصيل",
+          company_en: "Kibsons",
+          company_ar: "كبسنس",
+          image:
+            "https://livoprod.s3.us-east-2.amazonaws.com/Kibsons-1657900090556.jpg",
+          priority: 2,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+        {
+          id: "30a0fcf0-9572-11ec-b4f0-d324d1012e50",
+          category_en: "Delivery",
+          category_ar: "توصيل",
+          company_en: "Lulu Hypermarket",
+          company_ar: "لولو سوق ضخمة",
+          image:
+            "https://livoprod.s3.us-east-2.amazonaws.com/Lulu-Hypermarket-1657900090561.png",
+          priority: 2,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+        {
+          id: "a36e7be0-9572-11ec-b4f0-d324d1012e50",
+          category_en: "Delivery",
+          category_ar: "توصيل",
+          company_en: "NowNow",
+          company_ar: "ناو ناو",
+          image:
+            "https://livoprod.s3.us-east-2.amazonaws.com/NowNow-1657900090556.png",
+          priority: 2,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+        {
+          id: "f24ce9e0-9572-11ec-b4f0-d324d1012e50",
+          category_en: "Delivery",
+          category_ar: "توصيل",
+          company_en: "Pan Emirates",
+          company_ar: "الإمارات بين",
+          image:
+            "https://livoprod.s3.us-east-2.amazonaws.com/Pan-Emirates-1657900090550.png",
+          priority: 2,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+        {
+          id: "ce33d320-a512-11ec-ab00-eb0d24eb5def",
+          category_en: "Daily Help",
+          category_ar: "المساعدة اليومية",
+          company_en: "Driver",
+          company_ar: "سائق",
+          image:
+            "https://livoprod.s3.us-east-2.amazonaws.com/Driver-2-1657900090779.png",
+          priority: 2,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+        {
+          id: "e7992310-a512-11ec-ab00-eb0d24eb5def",
+          category_en: "Daily Help",
+          category_ar: "المساعدة اليومية",
+          company_en: "Nanny",
+          company_ar: "مربية",
+          image:
+            "https://livoprod.s3.us-east-2.amazonaws.com/Nanny-2-1657900090813.png",
+          priority: 2,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+        {
+          id: "2ec4ff10-9574-11ec-b4f0-d324d1012e50",
+          category_en: "Delivery",
+          category_ar: "توصيل",
+          company_en: "Zomato",
+          company_ar: "زوماتو",
+          image:
+            "https://livoprod.s3.us-east-2.amazonaws.com/zomato-1657900090594.png",
+          priority: 2,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+        {
+          id: "d67e7740-9574-11ec-b4f0-d324d1012e50",
+          category_en: "Delivery",
+          category_ar: "توصيل",
+          company_en: "Deliveroo",
+          company_ar: "ديليورو",
+          image:
+            "https://livoprod.s3.us-east-2.amazonaws.com/deliveroo-1657900090594.png",
+          priority: 2,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+        {
+          id: "19ece2f0-9575-11ec-b4f0-d324d1012e50",
+          category_en: "Delivery",
+          category_ar: "توصيل",
+          company_en: "Sivvi",
+          company_ar: "صيوي",
+          image:
+            "https://livoprod.s3.us-east-2.amazonaws.com/sivvi-1657900090568.png",
+          priority: 2,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+        {
+          id: "f1548810-984f-11ec-ab04-27a3095dd988",
+          category_en: "Guest",
+          category_ar: "الضيف",
+          company_en: null,
+          company_ar: null,
+          image:
+            "https://livoprod.s3.us-east-2.amazonaws.com/guest-1657900090694.png",
+          priority: 2,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+        {
+          id: "bdcb9db0-9590-11ec-8081-d9df26784350",
+          category_en: "Delivery",
+          category_ar: "توصيل",
+          company_en: "Landmark Group",
+          company_ar: "لاندمارك جروب",
+          image:
+            "https://livoprod.s3.us-east-2.amazonaws.com/Landmark-Group-1657900090550.png",
+          priority: 2,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+        {
+          id: "3d4013f0-9573-11ec-b4f0-d324d1012e50",
+          category_en: "Cab",
+          category_ar: "سيارة أجرة",
+          company_en: "Uber",
+          company_ar: "أوبر",
+          image:
+            "https://livoprod.s3.us-east-2.amazonaws.com/Uber-1657900090554.jpg",
+          priority: 2,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+        {
+          id: "ffa94fb0-956e-11ec-b4f0-d324d1012e50",
+          category_en: "Cab",
+          category_ar: "سيارة أجرة",
+          company_en: "Careem",
+          company_ar: "كريم",
+          image:
+            "https://livoprod.s3.us-east-2.amazonaws.com/careem-1657900090594.png",
+          priority: 2,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+        {
+          id: "aaa3e7b0-e1a3-11ec-98a2-5d80b03b22aa",
+          category_en: "Cab",
+          category_ar: "سيارة أجرة",
+          company_en: "Others",
+          company_ar: "آحرون",
+          image:
+            "https://livoprod.s3.us-east-2.amazonaws.com/others-1657900090694.png",
+          priority: 1,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+        {
+          id: "b586ee40-984f-11ec-ab04-27a3095dd988",
+          category_en: "Cab",
+          category_ar: "سيارة أجرة",
+          company_en: null,
+          company_ar: null,
+          image:
+            "https://livoprod.s3.us-east-2.amazonaws.com/Cab-2-1657900090780.png",
+          priority: 2,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+        {
+          id: "a65c7a30-9619-11ec-9c85-69711554bc79",
+          category_en: "Delivery",
+          category_ar: "توصيل",
+          company_en: null,
+          company_ar: null,
+          image:
+            "https://livoprod.s3.us-east-2.amazonaws.com/delivery-1657900090694.png",
+          priority: 2,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+        {
+          id: "889bfc90-9610-11ec-8a45-49b4aa30efe6",
+          category_en: "Delivery",
+          category_ar: "توصيل",
+          company_en: "Shein",
+          company_ar: "شين",
+          image:
+            "https://livoprod.s3.us-east-2.amazonaws.com/Shein-1657900090563.jpg",
+          priority: 2,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+        {
+          id: "60ad0480-9850-11ec-ab04-27a3095dd988",
+          category_en: "Others",
+          category_ar: "آحرون",
+          company_en: null,
+          company_ar: null,
+          image:
+            "https://livoprod.s3.us-east-2.amazonaws.com/others-1657900090694.png",
+          priority: 2,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+        {
+          id: "b68c7560-e1a3-11ec-98a2-5d80b03b22aa",
+          category_en: "Delivery",
+          category_ar: "توصيل",
+          company_en: "Others",
+          company_ar: "آحرون",
+          image:
+            "https://livoprod.s3.us-east-2.amazonaws.com/others-1657900090694.png",
+          priority: 1,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+        {
+          id: "37b170a0-a513-11ec-ab00-eb0d24eb5def",
+          category_en: "Daily Help",
+          category_ar: "المساعدة اليومية",
+          company_en: "Others",
+          company_ar: "آحرون",
+          image:
+            "https://livoprod.s3.us-east-2.amazonaws.com/others-1657900090694.png",
+          priority: 1,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+        {
+          id: "fee94ea0-a512-11ec-ab00-eb0d24eb5def",
+          category_en: "Daily Help",
+          category_ar: "المساعدة اليومية",
+          company_en: "Gardener",
+          company_ar: "بستاني",
+          image:
+            "https://livoprod.s3.us-east-2.amazonaws.com/Gardener-2-1657900090694.png",
+          priority: 2,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+        {
+          id: "66616320-e1a3-11ec-98a2-5d80b03b22aa",
+          category_en: "Home Services",
+          category_ar: "خدمات منزلية",
+          company_en: "Others",
+          company_ar: "آحرون",
+          image:
+            "https://livoprod.s3.us-east-2.amazonaws.com/others-1657900090694.png",
+          priority: 1,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+      ],
+      {}
+    );
+  },
+
+  async down(queryInterface, Sequelize) {
+    /**
+     * Add commands to revert seed here.
+     *
+     * Example:
+     * await queryInterface.bulkDelete('People', null, {});
+     */
+  },
+};

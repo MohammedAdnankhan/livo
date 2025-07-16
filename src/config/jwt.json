@@ -1,0 +1,14 @@
+{
+  "development": {
+    "secret_key": "9c73bc3b-07b0-41a1-9e35-9c317167afe5",
+    "access_key": "9c73bc3b-07b0-41a1-9e35-9c317167afe5"
+  },
+  "staging": {
+    "secret_key": "deffa5fc-1af9-4b94-9ed1-4bddf2b29092",
+    "access_key": "deffa5fc-1af9-4b94-9ed1-4bddf2b29092"
+  },
+  "production": {
+    "secret_key": "ab7545d539426a6ae0595183f9996743a53112f53bd9ead6d7872179b0c6fb85",
+    "access_key": "ab7545d539426a6ae0595183f9996743a53112f53bd9ead6d7872179b0c6fb85"
+  }
+}
