@@ -19,11 +19,11 @@
       "name": "Enterprise",
       "description": "Large-scale organizations with multiple departments and complex permissions."
     },
-    {
-      "id": 5,
-      "name": "Educational Institution",
-      "description": "Schools, colleges, or universities using the platform for academic purposes."
-    },
+    // {
+    //   "id": 5,
+    //   "name": "Educational Institution",
+    //   "description": "Schools, colleges, or universities using the platform for academic purposes."
+    // },
     {
       "id": 6,
       "name": "Non-Profit Organization",
