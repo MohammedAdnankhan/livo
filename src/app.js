@@ -53,9 +53,8 @@ async function main() {
   });
 
   // Routes
-
-  app.use("/api/v1", appRoutes);
-  app.use('/api', superAdminRoutes);
+app.use("/api/v1", appRoutes);
+app.use('/api', superAdminRoutes);
 app.use('/api', tenantRoutes);
 app.use('/api/permission', permissionRoutes);
 app.use('/api/user', userRoutes);

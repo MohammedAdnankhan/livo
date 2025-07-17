@@ -2,9 +2,8 @@
   "name": "levo_backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
-    "dev": "nodemon src/app.js",
+    "dev": "nodemon app.js",
     "prod": "export NODE_ENV=production && node src/app.js",
     "stage": "export NODE_ENV=staging && node src/app.js"
   },

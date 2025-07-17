@@ -1,0 +1,8 @@
+2025-07-17T05:40:19.510Z info {"message":"Database Connected"}
+2025-07-17T05:40:30.450Z error {"message":"Error: {reference: RouteError, message: Route not found, errorCode: 404, errors: [], error: Route not found}"}
+2025-07-17T05:41:05.274Z error {"message":"Error: {reference: RouteError, message: Route not found, errorCode: 404, errors: [], error: Route not found}"}
+2025-07-17T05:48:27.738Z info {"message":"Database Connected"}
+2025-07-17T05:49:58.925Z error {"message":"Error: {reference: RouteError, message: Route not found, errorCode: 404, errors: [], error: Route not found}"}
+2025-07-17T06:06:33.961Z error {"message":"Error: {reference: RouteError, message: Route not found, errorCode: 404, errors: [], error: Route not found}"}
+2025-07-17T06:17:50.469Z info {"message":"Database Connected"}
+2025-07-17T06:17:55.521Z info {"message":"Database Connected"}

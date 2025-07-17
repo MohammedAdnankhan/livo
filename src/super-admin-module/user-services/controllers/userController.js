@@ -39,7 +39,7 @@ exports.createUser = async (req, res, next) => {
       <br>
       <p>Best regards,<br>Your App Team</p>
     `;
-    await sendMail({ to: email, subject, html });
+    // await sendMail({ to: email, subject, html });
     req.logMeta = {
       entity: "User",
       entity_id: user.user_id || user.id,

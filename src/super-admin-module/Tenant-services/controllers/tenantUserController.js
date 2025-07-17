@@ -81,10 +81,8 @@ exports.getAllTenantUsers = async (req, res, next) => {
 };
 exports.getAllCategory = async (req, res, next) => {
   try {
-    console.log("here try")
       return res.status(200).json({ success: true, code: 200, message: 'Tenants Category fetched', data: tenantCategories, } );
   } catch (err) {
-    console.log("false try")
 
     return res.status(500).json({ success: false, code: 500, message: 'Internal server error', error: err.message });
   }

@@ -72,7 +72,7 @@ if (!admin_user_email || !admin_user_password) {
       <br>
       <p>Best regards,<br>Your App Team</p>
     `;
-    await sendMail({ to: contact_email, subject, html });
+    // await sendMail({ to: contact_email, subject, html });
 
     req.logMeta = { entity: 'Tenant', entity_id: tenant.tenant_id, action: 'create' };
     res.status(201).json({ success: true, code: 201, message: 'Tenant created', data: tenant });
