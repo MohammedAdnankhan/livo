@@ -9,6 +9,7 @@ const {
 } = require("../../owner-service/controllers/owner");
 const { verifyAccessToken } = require("../verifyToken");
 const Staff = require("../../staff-service/models/Staff");
+const Tenant = require("../../super-admin-module/Tenant-services/models/tenant");
 
 //auth token middleware
 exports.authToken = (allowedTypes = [USER_TYPES.USER]) => {
@@ -20,6 +21,7 @@ exports.authToken = (allowedTypes = [USER_TYPES.USER]) => {
         try {
           const decodedData = verifyAccessToken(token);
           const { id, type } = decodedData;
+
           if (!allowedTypes.includes(type))
             return next(
               new AppError("authToken", "Token type not found", "custom", 420)
@@ -60,23 +62,42 @@ exports.authToken = (allowedTypes = [USER_TYPES.USER]) => {
               user.password = undefined;
               req.currentUser = user;
               next();
-            } else {
+            }
+           
+            
+            else {
               return next(
                 new AppError("userAuthToken", "User not found.", "custom", 420)
               );
             }
-          } else if (type == USER_TYPES.ADMIN) {
+          }
+           else if (type == USER_TYPES.ADMIN) {
+            // Try to find an Administrator by id
             const admin = await Administrator.findByPk(id);
             if (admin) {
               admin.password = undefined;
               req.currentAdmin = admin;
-              next();
-            } else {
-              return next(
-                new AppError("adminAuthToken", "Admin not found", "custom", 420)
-              );
+              return next();
             }
-          } else if (type == USER_TYPES.OWNER) {
+
+            // If not found, try to find a Tenant by id
+            const tenant = await Tenant.findByPk(id);
+            if (tenant) {
+              req.currentAdmin = {
+                ...tenant.toJSON(),
+                id: tenant.tenant_id,
+                role:"Admin", // or whatever your PK is
+                propertyId: tenant.propertyId || "2529b260-63b7-11f0-9549-39281bef0a52"
+              };
+              return next();
+            }
+
+            // If neither found, return error
+            return next(
+              new AppError("adminAuthToken", "Admin not found", "custom", 420)
+            );
+          }
+           else if (type == USER_TYPES.OWNER) {
             const owner = await getMasterUserFromOwner(id);
             if (owner) {
               req.currentOwner = owner;
@@ -89,7 +110,8 @@ exports.authToken = (allowedTypes = [USER_TYPES.USER]) => {
                 new AppError("ownerAuthToken", "Owner not found", "custom", 420)
               );
             }
-          } else if (type == USER_TYPES.STAFF) {
+          } 
+          else if (type == USER_TYPES.STAFF) {
             const staff = await Staff.findByPk(id, {
               attributes: { exclude: ["password"] },
             });

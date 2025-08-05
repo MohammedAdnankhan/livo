@@ -8,11 +8,11 @@ const { LANGUAGES, TIMEZONES } = require("./config/constants");
 const { createSocketConnection } = require("./utils/socket");
 const logger = require("./utils/logger");
 const { appRoutes } = require("./routes");
-const superAdminRoutes = require('./super-admin-module/super-admin-service/routes/index.js');
-const tenantRoutes = require('./super-admin-module/Tenant-services/routes/index.js');
-const permissionRoutes = require('./super-admin-module/permission-service/routes/index.js');
-const userRoutes = require('./super-admin-module/user-services/routes/index.js');
-const logRoutes = require('./super-admin-module/logs-service/routes/index.js');
+const superAdminRoutes = require("./super-admin-module/super-admin-service/routes/index.js");
+const tenantRoutes = require("./super-admin-module/Tenant-services/routes/index.js");
+const permissionRoutes = require("./super-admin-module/permission-service/routes/index.js");
+const userRoutes = require("./super-admin-module/user-services/routes/index.js");
+const logRoutes = require("./super-admin-module/logs-service/routes/index.js");
 
 const {
   restartReminders,
@@ -51,23 +51,24 @@ async function main() {
       : TIMEZONES.INDIA;
     next();
   });
-
+  // app.use(express.json());
   // Routes
-app.use("/api/v1", appRoutes);
-app.use('/api', superAdminRoutes);
-app.use('/api', tenantRoutes);
-app.use('/api/permission', permissionRoutes);
-app.use('/api/user', userRoutes);
-app.use('/api', logRoutes);
+  app.use("/api/v1", appRoutes);
+  app.use("/api", superAdminRoutes);
+  app.use("/api/v1", tenantRoutes);
+  app.use("/api/permission", permissionRoutes);
+  app.use("/api/user", userRoutes);
+  app.use("/api", logRoutes);
   app.get("/api/check-server", (req, res) => {
     res.json(`Server line on host: ${os.hostname()}`);
   });
 
   app.use("*", (_req, _res, next) =>
-    next(new AppError("RouteError", "Route not found", "custom", 404))
+    next(new AppError("RouteError", "Route not right", "custom", 404))
   );
 
   app.use((error, req, res, next) => {
+    // res.setHeader("Referrer-Policy", "no-referrer");
     return errorHandler(error, res);
   });
 

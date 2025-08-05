@@ -53,18 +53,21 @@ router.get(
 );
 router.post(
   "/",
-  authToken(USER_TYPES.ADMIN),
-  restrictAdmin(ADMIN_ROLES.ADMIN),
+  // authToken(USER_TYPES.ADMIN),
+  // restrictAdmin(ADMIN_ROLES.ADMIN),
   validatePayload({ body: createLocalitySchema }),
   async (req, res, next) => {
     try {
+      console.log(req.body,"lksjdflkjsd")
       const locality = await localityController.addLocality(req.validatedBody);
+      // const locality = await localityController.addLocality(req.body);
       res.json({
         status: "success",
         msg: "Locality created successfully",
         data: locality,
       });
     } catch (error) {
+      console.log(error,"lets check",error.reference);
       error.reference = error.reference ? error.reference : "POST /localities";
       next(error);
     }

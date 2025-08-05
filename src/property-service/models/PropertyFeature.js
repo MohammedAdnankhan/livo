@@ -69,12 +69,12 @@ const PropertyFeature = db.sequelize.define(
     },
     isApiAccessible: {
       type: DataTypes.BOOLEAN,
-      allowNull:true,
+      allowNull: true,
     },
-    clientSecret:{
-      type:DataTypes.STRING,
-      allowNull:true
-    } 
+    clientSecret: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
   },
   {
     tableName: "property_features",

@@ -92,6 +92,9 @@ Administrator.belongsTo(Property, {
   foreignKey: "propertyId",
 });
 
+// We'll define the relationship with Tenant after both models are loaded
+// to avoid circular dependencies
+
 // Administrator.sync({ force: true });
 // Administrator.sync({ alter: true });
 

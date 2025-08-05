@@ -163,4 +163,5 @@ Building.belongsTo(Property, {
   as: "property",
 });
 
+// Building.sync({ alter: true });
 module.exports = Building;

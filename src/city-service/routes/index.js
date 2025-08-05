@@ -52,6 +52,7 @@ router.post(
   authToken(USER_TYPES.ADMIN),
   restrictAdmin(ADMIN_ROLES.MASTER_ADMIN),
   async (req, res, next) => {
+    console.log("POST /cities req.body:", req.body);
     try {
       const city = await cityController.addCity(req.body);
       res.json({
@@ -59,6 +60,7 @@ router.post(
         data: city,
       });
     } catch (error) {
+      console.log(error,"here we go")
       error.reference = error.reference ? error.reference : "POST /cities";
       next(error);
     }

@@ -63,5 +63,6 @@ Locality.belongsTo(City, {
 });
 
 // Locality.sync({ force: true });
+// Locality.sync({ alter: true });
 
 module.exports = Locality;

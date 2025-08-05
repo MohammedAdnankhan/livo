@@ -21,6 +21,7 @@ router.get(
   authToken(USER_TYPES.ADMIN),
   restrictAdmin(ADMIN_ROLES.ADMIN),
   async (req, res, next) => {
+    console.log(req.currentAdmin,"currentAdmin")
     try {
       const stats = await buildingController.getBuildingStatistics({
         propertyId: req.currentAdmin.propertyId,
@@ -30,6 +31,7 @@ router.get(
         data: stats,
       });
     } catch (error) {
+      console.log(error, "States error")
       error.reference = error.reference
         ? error.reference
         : "GET /buildings/admin/statistics";
@@ -131,6 +133,7 @@ router.get(
   validatePayload({ query: getBuildingsSchema }),
   async (req, res, next) => {
     try {
+
       let buildings = null;
       const params = req.validatedQuery;
       params.propertyId = req.currentAdmin.propertyId;
@@ -141,7 +144,8 @@ router.get(
           req.language,
           req.paginate
         );
-      } else {
+      } 
+      else {
         buildings =
           await adminBuildingController.getBuildingsWithCityAndLocality(
             params,
@@ -150,7 +154,8 @@ router.get(
           );
       }
       sendResponse(res, buildings);
-    } catch (error) {
+    }
+     catch (error) {
       error.reference = error.reference
         ? error.reference
         : "GET /buildings/admin";

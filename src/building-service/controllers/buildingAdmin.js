@@ -257,6 +257,7 @@ const getBuildingsWithCityAndLocality = async (
     limit,
     order: [[`updatedAt`, "DESC"]],
   });
+
   return buildings;
 };
 

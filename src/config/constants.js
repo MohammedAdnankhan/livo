@@ -127,6 +127,7 @@ const USER_TYPES = {
 const ADMIN_ROLES = {
   ADMIN: "Admin",
   MASTER_ADMIN: "Master Admin",
+  TENANT:'Admin'
 };
 
 const USER_ROLES = {

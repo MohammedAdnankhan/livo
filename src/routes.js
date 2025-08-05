@@ -1,5 +1,6 @@
 const { Router } = require("express");
 
+
 const cityRoutes = require("./city-service/routes");
 const localityRoutes = require("./locality-service/routes");
 const buildingRoutes = require("./building-service/routes");
@@ -97,7 +98,6 @@ appRoutes.use("/amenities", amenityRoutes);
 appRoutes.use("/invoices", invoiceRoutes);
 appRoutes.use("/tags", tagRoutes);
 appRoutes.use("/clients", clientRoutes);
-// appRoutes.use('/super-admin', superAdminRoutes);
 
 
 module.exports = { appRoutes };

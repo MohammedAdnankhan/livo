@@ -290,10 +290,12 @@ router.get(
   validateBuildingIdForAdmin,
   async (req, res, next) => {
     try {
+      console.log('its in try')
       let buildingIds = [];
       if (req.currentAdmin.buildingId) {
         buildingIds.push(req.currentAdmin.buildingId);
-      } else {
+      }
+       else {
         (
           await buildingController.getBuildings({
             propertyId: req.currentAdmin.propertyId,
@@ -306,6 +308,10 @@ router.get(
         { ...req.query, buildingIds },
         req.timezone
       );
+     console.log({
+        status: "success",
+        data: stats,
+      }),"before log";
       res.json({
         status: "success",
         data: stats,

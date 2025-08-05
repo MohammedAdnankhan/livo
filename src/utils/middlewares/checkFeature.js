@@ -16,6 +16,7 @@ exports.checkFeature = (feature) => {
         propertyId = building.propertyId;
       } else if (req?.currentAdmin?.propertyId) {
         propertyId = req.currentAdmin.propertyId;
+
       } else if (req?.currentGuard?.propertyId) {
         propertyId = req.currentGuard.propertyId;
       } else {
@@ -31,8 +32,10 @@ exports.checkFeature = (feature) => {
 
       const propertyFeature = await getPropertyFeature({
         propertyId,
-      });
+      },
+    );
 
+    console.log(propertyFeature,'IsFeaturefound')
       if (propertyFeature && propertyFeature[feature]) {
         return next();
       } else {
@@ -46,7 +49,7 @@ exports.checkFeature = (feature) => {
         );
       }
     } catch (error) {
-      console.log(error);
+      console.log(error,"out--->");
       logger.info(`Error in checkFeature: ${JSON.stringify(error)}`);
       return next(
         new AppError(

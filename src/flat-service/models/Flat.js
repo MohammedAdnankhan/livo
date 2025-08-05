@@ -140,4 +140,6 @@ MasterUser.hasMany(Flat, {
   as: "ownedFlats",
 });
 
+// Flat.sync({ alter: true });
+
 module.exports = Flat;
