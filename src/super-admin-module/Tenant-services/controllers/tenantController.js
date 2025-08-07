@@ -30,8 +30,7 @@ const ACCESS_KEY = require("../../../config/jwt.json")[env]?.secret_key;
 // const Page = require('../../permission-service/models/pages');
 // const Permission = require('../models/permissions');
 
-exports.createTenant = async (req, res, next) => {
-  req.logMeta = { entity: "Tenant", entity_id: null, action: "create" };
+exports.createTenant = async (req, res) => {
   try {
     const {
       tenant_name,
@@ -47,84 +46,85 @@ exports.createTenant = async (req, res, next) => {
       notes,
       user_add_limit,
     } = req.body;
-    // Check if tenant with same email already exists
+
+    // Input validation
     if (!admin_user_email || !admin_user_password) {
       return res.status(400).json({
         success: false,
         code: 400,
-        message: "email and password are required",
+        message: "Email and password are required",
       });
     }
-    let data = { localityId, name: propertyName };
 
-    const property = await Property.create({ localityId, name: propertyName });
+    if (
+      !contact_number ||
+      contact_number.length > 12 ||
+      contact_number.length < 4
+    ) {
+      return res.status(400).json({
+        success: false,
+        code: 400,
+        message: "Contact number length should be between 4 and 12",
+      });
+    }
 
+    // Check for existing property
+    const existingProperty = await Property.findOne({
+      where: { localityId, name: propertyName },
+    });
+
+    if (existingProperty) {
+      return res.status(400).json({
+        success: false,
+        code: 400,
+        message: "Property already exists with this locality and Property Name",
+      });
+    }
+
+    // Check for existing tenant/admin
+    const [existingTenant, admin_Already_Exist] = await Promise.all([
+      Tenant.findOne({ where: { admin_user_email } }),
+      Administrator.findOne({ where: { email: admin_user_email } }),
+    ]);
+
+    if (existingTenant || admin_Already_Exist) {
+      return res.status(400).json({
+        success: false,
+        code: 400,
+        message: "Tenant already exists",
+      });
+    }
+
+    // Create property
+    const createdProperty = await Property.create({
+      localityId,
+      name: propertyName,
+    });
+
+    // Create property features
     const propertyFeatureData = {
-      propertyId: property.id,
-      isSignupApprovalRequired:
-        "isSignupApprovalRequired" in data &&
-        typeof data.isSignupApprovalRequired === "boolean"
-          ? data.isSignupApprovalRequired
-          : true,
+      propertyId: createdProperty.id,
+      isSignupApprovalRequired: true,
     };
 
-    if (!propertyFeatureData.isSignupApprovalRequired) {
-      propertyFeatureData.approvalDetails = {
-        approvalDuration:
-          "approvalDuration" in data && !isNaN(data.approvalDuration)
-            ? data.approvalDuration
-            : 1,
-        flatUsage: data.flatUsage ? data.flatUsage : FLAT_USAGE.RESIDENTIAL,
-        securityDeposit:
-          "securityDeposit" in data && !isNaN(data.securityDeposit)
-            ? data.securityDeposit
-            : 0,
-        activationFee:
-          "activationFee" in data && !isNaN(data.activationFee)
-            ? data.activationFee
-            : 0,
-        paymentFrequency: data.paymentFrequency
-          ? data.paymentFrequency
-          : PAYMENT_FREQUENCIES.YEARLY,
-        paymentMode: data.paymentMode ? data.paymentMode : "Cash",
-        currency: data.currency ? data.currency : "AED",
-        noticePeriod:
-          "noticePeriod" in data && !isNaN(data.noticePeriod)
-            ? data.noticePeriod
-            : 0,
-        rentAmount:
-          "rentAmount" in data && !isNaN(data.noticePeriod)
-            ? data.rentAmount
-            : 0,
-      };
-    }
     await PropertyFeature.create(propertyFeatureData);
 
-    let tenant = await Tenant.findOne({ where: { admin_user_email } });
-    let admin_Already_Exist = await Administrator.findOne({
-      where: { email: admin_user_email },
-    });
-    if (tenant || admin_Already_Exist) {
-      res
-        .status(400)
-        .json({ success: false, code: 400, message: "Tenant already exists" });
-      return next();
-    }
     const hashedPassword = await bcrypt.hash(admin_user_password, 10);
 
-    // Create the Administrator for this tenant
-    let admin_just_created = await Administrator.create({
+    // Create admin user
+    const createdAdmin = await Administrator.create({
       name: tenant_name,
       email: admin_user_email,
-      countryCode: "+1", // Default country code
-      mobileNumber: contact_number || "9999", // fallback to a valid dummy number
+      countryCode: "+1",
+      mobileNumber: contact_number || "9999",
       profilePicture: "",
       role: "Admin",
       password: hashedPassword,
-      propertyId: property.id || null, // or set if you have a propertyId
+      propertyId: createdProperty.id,
     });
 
-    tenant = await Tenant.create({
+    // Create tenant
+    const createdTenant = await Tenant.create({
       tenant_name,
       admin_user_email,
       admin_user_password: hashedPassword,
@@ -135,12 +135,10 @@ exports.createTenant = async (req, res, next) => {
       status,
       notes,
       user_add_limit,
-      connected_admin_id: admin_just_created.id,
+      connected_admin_id: createdAdmin.id,
     });
-    console.log(admin_just_created, "Tenant created");
 
-    await tenant.save();
-    // Send welcome email to admin
+    // Send welcome email
     const subject = "Welcome to Our Platform!";
     const html = `
       <h2>Welcome, ${tenant_name} Admin!</h2>
@@ -151,56 +149,48 @@ exports.createTenant = async (req, res, next) => {
       </ul>
       <p>Please log in and change your password after your first login.</p>
       <br>
-      <p>Best regards,<br>Your App Team</p>
-    `;
+      <p>Best regards,<br>Your App Team</p>`;
+
     // await sendMail({ to: contact_email, subject, html });
 
-    req.logMeta = {
-      entity: "Tenant",
-      entity_id: tenant.tenant_id,
-      action: "create",
-    };
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       code: 201,
-      message: "Tenant created",
-      data: tenant,
+      message: "Tenant created successfully",
+      data: createdTenant,
     });
-    return next();
   } catch (err) {
-    req.logMeta = { entity: "Tenant", entity_id: null, action: "create" };
-    console.error("Error creating tenant:", err);
+    console.error("Error in createTenant:", err);
 
-    // Handle validation errors
+    // Handle specific error types
     if (
       err.name === "SequelizeValidationError" ||
       err.name === "SequelizeUniqueConstraintError"
     ) {
-      const errors = err.errors.map((e) => ({
-        field: e.path,
-        message: e.message,
-        value: e.value,
-      }));
-
       return res.status(400).json({
         success: false,
         code: 400,
         message: "Validation error",
-        errors: errors,
+        errors: err.errors
+          ? err.errors.map((e) => ({
+              field: e.path,
+              message: e.message,
+              value: e.value,
+            }))
+          : [err.message],
       });
     }
 
-    // For other types of errors
-    res.status(500).json({
+    // For other errors
+    return res.status(500).json({
       success: false,
       code: 500,
       message: "Internal server error",
       error:
         process.env.NODE_ENV === "development"
           ? err.message
-          : "Something went wrong",
+          : "Something went wrong while creating tenant",
     });
-    return next();
   }
 };
 

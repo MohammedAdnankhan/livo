@@ -2768,3 +2768,13 @@
 2025-08-07T06:38:59.667Z error {"message":"Error: {reference: GET /dashboard/visitor/delivery-analytics, message: Invalid Body, errorCode: 200, errors: [], error: syntax error at or near \")\"}"}
 2025-08-07T06:40:21.484Z error {"message":"Error: {reference: GET /dashboard/visitor/delivery-analytics, message: Invalid Body, errorCode: 200, errors: [], error: syntax error at or near \")\"}"}
 2025-08-07T06:40:21.517Z error {"message":"Error: {reference: GET /dashboard/visitor/delivery-analytics, message: Invalid Body, errorCode: 200, errors: [], error: syntax error at or near \")\"}"}
+2025-08-07T09:00:09.042Z error {"message":"Error: {reference: RouteError, message: Route not right, errorCode: 404, errors: [], error: Route not right}"}
+2025-08-07T09:00:19.392Z error {"message":"Error: {reference: RouteError, message: Route not right, errorCode: 404, errors: [], error: Route not right}"}
+2025-08-07T09:00:54.489Z error {"message":"Error: {reference: RouteError, message: Route not right, errorCode: 404, errors: [], error: Route not right}"}
+2025-08-07T09:00:57.968Z error {"message":"Error: {reference: RouteError, message: Route not right, errorCode: 404, errors: [], error: Route not right}"}
+2025-08-07T10:20:05.891Z error {"message":"Error: {reference: RouteError, message: Route not right, errorCode: 404, errors: [], error: Route not right}"}
+2025-08-07T11:16:55.590Z error {"message":"Error: {reference: RouteError, message: Route not right, errorCode: 404, errors: [], error: Route not right}"}
+2025-08-07T12:35:02.604Z error {"message":"Error: {reference: RouteError, message: Route not right, errorCode: 404, errors: [], error: Route not right}"}
+2025-08-07T12:35:05.333Z error {"message":"Error: {reference: RouteError, message: Route not right, errorCode: 404, errors: [], error: Route not right}"}
+2025-08-07T12:39:36.845Z error {"message":"Error: {reference: RouteError, message: Route not right, errorCode: 404, errors: [], error: Route not right}"}
+2025-08-07T12:40:01.428Z error {"message":"Error: {reference: RouteError, message: Route not right, errorCode: 404, errors: [], error: Route not right}"}
