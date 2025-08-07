@@ -54,7 +54,7 @@ async function main() {
   // app.use(express.json());
   // Routes
   app.use("/api/v1", appRoutes);
-  app.use("/api", superAdminRoutes);
+  app.use("/api/v1", superAdminRoutes);
   app.use("/api/v1", tenantRoutes);
   app.use("/api/permission", permissionRoutes);
   app.use("/api/user", userRoutes);

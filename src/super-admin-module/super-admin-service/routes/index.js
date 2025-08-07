@@ -21,5 +21,10 @@ router.get(
   authenticateToken,
   superAdminController.getSuperAdminDetails
 );
+router.post(
+  "/super-admin/add-city",
+  authenticateToken,
+  superAdminController.addCounty
+);
 
 module.exports = router;

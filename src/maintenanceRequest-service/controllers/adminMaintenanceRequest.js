@@ -1517,6 +1517,12 @@ const getIncompleteRequests = async (
   language = LANGUAGES.EN,
   timezone = TIMEZONES.INDIA
 ) => {
+  // Early return if no buildings are found
+  if (!params.buildingId || params.buildingId.length === 0) {
+    return { count: 0, rows: [] };
+  }
+
+  // Handle date range if provided
   if (params.startDate && params.endDate) {
     params.startDate = moment(
       getDateTimeObjectFromTimezone(params.startDate, timezone)
@@ -1530,6 +1536,7 @@ const getIncompleteRequests = async (
       .tz(timezone)
       .endOf("day")
       .format();
+    
     if (params.startDate > params.endDate) {
       throw new AppError(
         "getIncompleteRequests",
@@ -1540,97 +1547,148 @@ const getIncompleteRequests = async (
     }
   }
 
+  // Build the query parts
+  const whereClauses = [
+    'mr."deletedAt" IS NULL',
+    'f."buildingId" IN (:buildingId)',
+    params.status ? 'ms.status = :status' : 'ms.status <> :status',
+    params.flatId ? 'f.id = :flatId' : null,
+    params.type ? 'mr.type = :type' : null,
+    params.requestId ? 'CAST(mr."requestId" AS TEXT) LIKE :requestId' : null,
+    params.startDate && params.endDate 
+      ? 'mr."createdAt" BETWEEN :startDate AND :endDate' 
+      : null,
+    params.categoryId ? 'mr."categoryId" = :categoryId' : null,
+    params.isUrgent ? 'mr."isUrgent" = :isUrgent' : null,
+    params.isBuilding ? 'mr."isBuilding" = :isBuilding' : null,
+    params.generatedBy ? 'mr."generatedBy" = :generatedBy' : null
+  ].filter(Boolean);
+
+  // Add search conditions if needed
+  let searchCondition = '';
+  if (params.search) {
+    searchCondition = `AND (
+      CAST(mr."requestId" AS TEXT) ILIKE :search OR
+      mr.type ILIKE :search OR
+      mr.description ILIKE :search OR
+      f.name_en ILIKE :search OR
+      s.name ILIKE :search OR
+      u.name ILIKE :search OR
+      b.name_en ILIKE :search OR
+      CAST(mr."createdAt" AS TEXT) ILIKE :search
+    )`;
+  }
+
   const query = `
-  SELECT mr.*, ms.id as "statusDetails.id", ms."maintenanceId" as "statusDetails.maintenanceId", ms.status as "statusDetails.status", 
-  ms.comment as "statusDetails.comment", ms.files as "statusDetails.files", ms."metaData" as "statusDetails.metaData", ms."createdAt" as "statusDetails.createdAt",
-  u.id AS "user.id", u.name AS "user.name", 
-  f.id AS "flat.id", f.name_en AS "flat.name_en", f.name_ar AS "flat.name_ar", 
-  b.id AS "flat.building.id", b.name_en AS "flat.building.name_en", b.name_ar AS "flat.building.name_ar", 
-  s.id AS "staff.id", s.name AS "staff.name", s.email AS "staff.email", s."countryCode" AS "staff.countryCode", s."mobileNumber" AS "staff.mobileNumber", s."profilePicture" AS "staff.profilePicture",
-  mc.name_en as "category.name_en",mc.name_ar as "category.name_ar", mc.image as "category.image",
-  mc1.name_en as "subCategory.name_en",mc1.name_ar as "subCategory.name_ar", mc1.image as "subCategory.image",
-  COUNT (*) OVER () as count
-  FROM maintenance_requests mr 
-  JOIN (
-      select distinct on("maintenanceId") * from maintenance_statuses 
-      where "deletedAt" is null 
-      order by "maintenanceId", "createdAt" desc
-  ) ms on ms."maintenanceId" = mr.id and ms.status <> :status ${
-    params.status ? `and ms.status ='${params.status}'` : ""
-  }
-  JOIN maintenance_categories as mc ON "mr"."categoryId" = "mc"."id" 
-  LEFT JOIN maintenance_categories as mc1 ON mr."subCategoryId" = mc1.id
-  LEFT OUTER JOIN users u ON mr."userId" = u.id AND (u."deletedAt" IS NULL) 
-  INNER JOIN flats f ON mr."flatId" = f.id AND (f."deletedAt" IS NULL AND (f."buildingId" in (:buildingId) ) ${
-    params.flatId ? `AND f.id = '${params.flatId}'` : ""
-  }) 
-  LEFT OUTER JOIN buildings b ON f."buildingId" = b.id AND (b."deletedAt" IS NULL) 
-  LEFT OUTER JOIN staffs s ON mr."staffId" = s.id AND (s."deletedAt" IS NULL) 
-  WHERE mr."deletedAt" IS NULL ${
-    params.search
-      ? `and (cast(mr."requestId" as text) ilike '%${params.search}%' 
-      or mr.type ilike '%${params.search}%'
-      or mr.description ilike '%${params.search}%'
-      or f.name_en ilike '%${params.search}%'
-      or s.name ilike '%${params.search}%'
-      or u.name ilike '%${params.search}%'
-      or b.name_en ilike '%${params.search}%'
-      or cast(mr."createdAt" as text) ilike '%${params.search}%' 
-      )`
-      : ""
-  }
-  ${params.type ? `and mr.type = '${params.type}'` : ""}
-  ${
-    params.requestId
-      ? `and cast(mr."requestId" as text) like '%${params.requestId}%'`
-      : ""
-  }
-  ${
-    params.startDate && params.endDate
-      ? `and mr."createdAt" >= '${params.startDate}' and mr."createdAt" <= '${params.endDate}'`
-      : ""
-  }
-  ${params.categoryId ? `and mr."categoryId" = '${params.categoryId}'` : ""}
-  ${params.isUrgent ? `and mr."isUrgent" is ${params.isUrgent}` : ""}
-  ${params.isBuilding ? `and mr."isBuilding" is ${params.isBuilding}` : ""}
-  ${params.generatedBy ? `and mr."generatedBy" = '${params.generatedBy}'` : ""}
-  ORDER BY mr."createdAt" ASC LIMIT :limit OFFSET :offset`;
-  const requests = await db.sequelize.query(query, {
-    type: db.Sequelize.QueryTypes.SELECT,
-    raw: true,
-    nest: true,
-    replacements: {
-      buildingId: params.buildingId,
-      status: MAINTENANCE_STATUSES.COMPLETED.key,
-      limit,
-      offset,
-    },
-  });
+    SELECT 
+      mr.*, 
+      ms.id as "statusDetails.id", 
+      ms."maintenanceId" as "statusDetails.maintenanceId", 
+      ms.status as "statusDetails.status", 
+      ms.comment as "statusDetails.comment", 
+      ms.files as "statusDetails.files", 
+      ms."metaData" as "statusDetails.metaData", 
+      ms."createdAt" as "statusDetails.createdAt",
+      u.id AS "user.id", 
+      u.name AS "user.name", 
+      f.id AS "flat.id", 
+      f.name_en AS "flat.name_en", 
+      f.name_ar AS "flat.name_ar", 
+      b.id AS "flat.building.id", 
+      b.name_en AS "flat.building.name_en", 
+      b.name_ar AS "flat.building.name_ar", 
+      s.id AS "staff.id", 
+      s.name AS "staff.name", 
+      s.email AS "staff.email", 
+      s."countryCode" AS "staff.countryCode", 
+      s."mobileNumber" AS "staff.mobileNumber", 
+      s."profilePicture" AS "staff.profilePicture",
+      mc.name_en as "category.name_en",
+      mc.name_ar as "category.name_ar", 
+      mc.image as "category.image",
+      mc1.name_en as "subCategory.name_en",
+      mc1.name_ar as "subCategory.name_ar", 
+      mc1.image as "subCategory.image",
+      COUNT(*) OVER () as count
+    FROM maintenance_requests mr 
+    JOIN (
+      SELECT DISTINCT ON("maintenanceId") * 
+      FROM maintenance_statuses 
+      WHERE "deletedAt" IS NULL 
+      ORDER BY "maintenanceId", "createdAt" DESC
+    ) ms ON ms."maintenanceId" = mr.id
+    JOIN maintenance_categories as mc ON "mr"."categoryId" = "mc"."id" 
+    LEFT JOIN maintenance_categories as mc1 ON mr."subCategoryId" = mc1.id
+    LEFT OUTER JOIN users u ON mr."userId" = u.id AND u."deletedAt" IS NULL
+    INNER JOIN flats f ON mr."flatId" = f.id AND f."deletedAt" IS NULL
+    LEFT OUTER JOIN buildings b ON f."buildingId" = b.id AND b."deletedAt" IS NULL
+    LEFT OUTER JOIN staffs s ON mr."staffId" = s.id AND s."deletedAt" IS NULL
+    WHERE ${whereClauses.join(' AND ')}
+    ${searchCondition}
+    ORDER BY mr."createdAt" ASC 
+    LIMIT :limit OFFSET :offset
+  `;
 
-  const count = requests[0]?.count ? parseInt(requests[0]?.count) : 0;
+  // Prepare replacements
+  const replacements = {
+    buildingId: params.buildingId,
+    status: params.status || MAINTENANCE_STATUSES.COMPLETED.key,
+    limit,
+    offset,
+    ...(params.flatId && { flatId: params.flatId }),
+    ...(params.type && { type: params.type }),
+    ...(params.requestId && { requestId: `%${params.requestId}%` }),
+    ...(params.startDate && params.endDate && { 
+      startDate: params.startDate,
+      endDate: params.endDate
+    }),
+    ...(params.categoryId && { categoryId: params.categoryId }),
+    ...(params.isUrgent && { isUrgent: params.isUrgent === 'true' }),
+    ...(params.isBuilding && { isBuilding: params.isBuilding === 'true' }),
+    ...(params.generatedBy && { generatedBy: params.generatedBy }),
+    ...(params.search && { search: `%${params.search}%` })
+  };
 
-  requests.map((request) => {
-    if (request.preferredTime?.start) {
-      request.preferredTime.start = moment(request.preferredTime.start)
-        .tz(timezone)
-        .format();
-    }
-    if (request.preferredTime?.end) {
-      request.preferredTime.end = moment(request.preferredTime.end)
-        .tz(timezone)
-        .format();
-    }
-    request.statusDetails.status =
-      MAINTENANCE_STATUSES[request.statusDetails.status][`status_${language}`];
-    request.type &&
-      (request.type = MAINTENANCE_TYPES[request.type][`type_${language}`]);
-    !request.subCategoryId && (request.subCategory = null);
-    !request.userId && (request.user = null);
-    !request.staffId && (request.staff = null);
-    delete request.count;
-  });
+  try {
+    const requests = await db.sequelize.query(query, {
+      type: db.Sequelize.QueryTypes.SELECT,
+      raw: true,
+      nest: true,
+      replacements
+    });
 
-  return { count, rows: requests };
+    const count = requests[0]?.count ? parseInt(requests[0]?.count) : 0;
+
+    // Process and return the results
+    const processedRequests = requests.map((request) => {
+      if (request.preferredTime?.start) {
+        request.preferredTime.start = moment(request.preferredTime.start)
+          .tz(timezone)
+          .format();
+      }
+      if (request.preferredTime?.end) {
+        request.preferredTime.end = moment(request.preferredTime.end)
+          .tz(timezone)
+          .format();
+      }
+      request.statusDetails.status =
+        MAINTENANCE_STATUSES[request.statusDetails.status]?.[`status_${language}`] || 
+        request.statusDetails.status;
+      request.type = request.type && 
+        MAINTENANCE_TYPES[request.type]?.[`type_${language}`] || 
+        request.type;
+      !request.subCategoryId && (request.subCategory = null);
+      !request.userId && (request.user = null);
+      !request.staffId && (request.staff = null);
+      delete request.count;
+      return request;
+    });
+
+    return { count, rows: processedRequests };
+  } catch (error) {
+    console.error('Error in getIncompleteRequests:', error);
+    throw error;
+  }
 };
 
 async function updateRequestSubCategory(data) {

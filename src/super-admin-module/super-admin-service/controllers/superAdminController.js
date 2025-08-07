@@ -12,7 +12,7 @@ const { TOKEN_EXPIRY_TIMES } = require("../../../config/constants.js");
 // const SECRET = process.env.JWT_SECRET || 'supersecret';
 const env = process.env.NODE_ENV || "development";
 const ACCESS_KEY = require("../../../config/jwt.json")[env]?.secret_key;
-
+const cityController = require("../../../city-service/controllers/city.js");
 exports.createSuperAdmin = async (req, res, next) => {
   try {
     // Check if SuperAdmin already exists
@@ -20,13 +20,11 @@ exports.createSuperAdmin = async (req, res, next) => {
       where: { email: "superadmin@yopmail.com" },
     });
     if (superAdmin) {
-      res
-        .status(400)
-        .json({
-          success: false,
-          code: 400,
-          message: "SuperAdmin already exists",
-        });
+      res.status(400).json({
+        success: false,
+        code: 400,
+        message: "SuperAdmin already exists",
+      });
       return next();
     }
     const hashedPassword = await bcrypt.hash("Test@1234", 10);
@@ -38,24 +36,20 @@ exports.createSuperAdmin = async (req, res, next) => {
       token: null,
     });
     await superAdmin.save();
-    res
-      .status(201)
-      .json({
-        success: true,
-        code: 201,
-        message: "SuperAdmin created",
-        data: superAdmin,
-      });
+    res.status(201).json({
+      success: true,
+      code: 201,
+      message: "SuperAdmin created",
+      data: superAdmin,
+    });
     return next();
   } catch (err) {
-    res
-      .status(500)
-      .json({
-        success: false,
-        code: 500,
-        message: "Error creating SuperAdmin",
-        error: err.message,
-      });
+    res.status(500).json({
+      success: false,
+      code: 500,
+      message: "Error creating SuperAdmin",
+      error: err.message,
+    });
     return next();
   }
 };
@@ -84,13 +78,11 @@ exports.loginSuperAdmin = async (req, res, next) => {
           entity_id: superAdmin.id,
           action: "login",
         };
-        res
-          .status(401)
-          .json({
-            success: false,
-            code: 401,
-            message: "Invalid Username or Password",
-          });
+        res.status(401).json({
+          success: false,
+          code: 401,
+          message: "Invalid Username or Password",
+        });
         return next();
       }
       // const token = jwt.sign(
@@ -126,15 +118,13 @@ exports.loginSuperAdmin = async (req, res, next) => {
         action: "login",
         email: superAdmin.email,
       };
-      res
-        .status(200)
-        .json({
-          success: true,
-          code: 200,
-          message: "Login successful",
-          token,
-          author: "superAdmin",
-        });
+      res.status(200).json({
+        success: true,
+        code: 200,
+        message: "Login successful",
+        token,
+        author: "superAdmin",
+      });
       return next();
     }
 
@@ -151,13 +141,11 @@ exports.loginSuperAdmin = async (req, res, next) => {
           entity_id: user.user_id,
           action: "login",
         };
-        res
-          .status(401)
-          .json({
-            success: false,
-            code: 401,
-            message: "Invalid Username or Password",
-          });
+        res.status(401).json({
+          success: false,
+          code: 401,
+          message: "Invalid Username or Password",
+        });
         await Log.create({
           user_id: user.user_id,
           email: email,
@@ -215,24 +203,20 @@ exports.loginSuperAdmin = async (req, res, next) => {
     }
     // If neither found
     req.logMeta = { entity: "Unknown", entity_id: null, action: "login" };
-    res
-      .status(401)
-      .json({
-        success: false,
-        code: 401,
-        message: "Invalid Username or Password",
-      });
+    res.status(401).json({
+      success: false,
+      code: 401,
+      message: "Invalid Username or Password",
+    });
     return next();
   } catch (err) {
     req.logMeta = { entity: "Unknown", entity_id: null, action: "login" };
-    res
-      .status(500)
-      .json({
-        success: false,
-        code: 500,
-        message: "Error logging in",
-        error: err.message,
-      });
+    res.status(500).json({
+      success: false,
+      code: 500,
+      message: "Error logging in",
+      error: err.message,
+    });
     return next();
   }
 };
@@ -281,14 +265,12 @@ exports.logoutSuperAdmin = async (req, res, next) => {
     }
   } catch (err) {
     req.logMeta = { entity: "Unknown", entity_id: null, action: "logout" };
-    res
-      .status(500)
-      .json({
-        success: false,
-        code: 500,
-        message: "Error logging out",
-        error: err.message,
-      });
+    res.status(500).json({
+      success: false,
+      code: 500,
+      message: "Error logging out",
+      error: err.message,
+    });
     return next();
   }
 };
@@ -305,14 +287,12 @@ exports.getSuperAdminDetails = async (req, res, next) => {
           .status(404)
           .json({ success: false, code: 404, message: "SuperAdmin not found" });
       }
-      return res
-        .status(200)
-        .json({
-          success: true,
-          code: 200,
-          message: "SuperAdmin details fetched",
-          data: superAdmin,
-        });
+      return res.status(200).json({
+        success: true,
+        code: 200,
+        message: "SuperAdmin details fetched",
+        data: superAdmin,
+      });
     } else if (author === "user") {
       const user = await User.findByPk(id, {
         include: [{ model: Role, as: "role", attributes: ["id", "name"] }],
@@ -322,27 +302,36 @@ exports.getSuperAdminDetails = async (req, res, next) => {
           .status(404)
           .json({ success: false, code: 404, message: "User not found" });
       }
-      return res
-        .status(200)
-        .json({
-          success: true,
-          code: 200,
-          message: "User details fetched",
-          data: user,
-        });
+      return res.status(200).json({
+        success: true,
+        code: 200,
+        message: "User details fetched",
+        data: user,
+      });
     } else {
       return res
         .status(400)
         .json({ success: false, code: 400, message: "Invalid user type" });
     }
   } catch (err) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        code: 500,
-        message: "Error fetching details",
-        error: err.message,
-      });
+    return res.status(500).json({
+      success: false,
+      code: 500,
+      message: "Error fetching details",
+      error: err.message,
+    });
+  }
+};
+
+exports.addCounty = async (req, res, next) => {
+  try {
+    const city = await cityController.addCity(req.body);
+    res.json({
+      status: "success",
+      data: city,
+    });
+  } catch (error) {
+    error.reference = error.reference ? error.reference : "POST /cities";
+    next(error);
   }
 };

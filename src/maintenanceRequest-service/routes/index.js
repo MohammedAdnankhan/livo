@@ -561,12 +561,16 @@ router.get(
             req.timezone
           );
       } else {
+        console.log("your in admi 6");
+
         requestsCount =
           await maintenanceRequestController.getRequestCountForAllStatuses(
             params,
             req.timezone
           );
       }
+      console.log("your in admi 7");
+
       res.json({
         status: "success",
         data: requestsCount,

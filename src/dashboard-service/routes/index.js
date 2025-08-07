@@ -94,18 +94,30 @@ router.get(
       if (req.currentAdmin.buildingId) {
         buildingIds.push(req.currentAdmin.buildingId);
       } else {
-        (
-          await buildingController.getBuildings({
-            propertyId: req.currentAdmin.propertyId,
-          })
-        ).map((building) => {
-          buildingIds.push(building.id);
+        const buildings = await buildingController.getBuildings({
+          propertyId: req.currentAdmin.propertyId,
+        });
+        buildingIds = buildings.map((building) => building.id);
+      }
+
+      // Return empty visitor statistics if no buildings found
+      if (buildingIds.length === 0) {
+        return res.json({
+          status: "success",
+          data: {
+            totalVisitors: 0,
+            visitorsByType: {},
+            visitorsByDate: [],
+            visitorsByTime: {},
+          },
         });
       }
+
       const stats = await dashboardController.getVisitorStatistics(
         { ...req.query, buildingIds },
         req.timezone
       );
+
       res.json({
         status: "success",
         data: stats,
@@ -290,28 +302,32 @@ router.get(
   validateBuildingIdForAdmin,
   async (req, res, next) => {
     try {
-      console.log('its in try')
       let buildingIds = [];
       if (req.currentAdmin.buildingId) {
         buildingIds.push(req.currentAdmin.buildingId);
+      } else {
+        const buildings = await buildingController.getBuildings({
+          propertyId: req.currentAdmin.propertyId,
+        });
+        buildingIds = buildings.map((building) => building.id);
       }
-       else {
-        (
-          await buildingController.getBuildings({
-            propertyId: req.currentAdmin.propertyId,
-          })
-        ).map((building) => {
-          buildingIds.push(building.id);
+
+      // Return empty analytics if no buildings found
+      if (buildingIds.length === 0) {
+        return res.json({
+          status: "success",
+          data: {
+            categories: [],
+            totalVisitors: 0,
+          },
         });
       }
+
       const stats = await dashboardController.getVisitorAnalytics(
         { ...req.query, buildingIds },
         req.timezone
       );
-     console.log({
-        status: "success",
-        data: stats,
-      }),"before log";
+
       res.json({
         status: "success",
         data: stats,
@@ -336,19 +352,33 @@ router.get(
       if (req.currentAdmin.buildingId) {
         buildingIds.push(req.currentAdmin.buildingId);
       } else {
-        (
-          await buildingController.getBuildings({
-            propertyId: req.currentAdmin.propertyId,
-          })
-        ).map((building) => {
-          buildingIds.push(building.id);
+        const buildings = await buildingController.getBuildings({
+          propertyId: req.currentAdmin.propertyId,
+        });
+        buildingIds = buildings.map((building) => building.id);
+      }
+
+      // Return empty stats if no buildings found
+      if (buildingIds.length === 0) {
+        return res.json({
+          status: "success",
+          data: {
+            totalVisitors: 0,
+            visitorsToday: 0,
+            pendingApprovals: 0,
+            visitorsThisWeek: 0,
+            visitorsByType: {},
+            visitorsByDate: [],
+          },
         });
       }
+
       const stats = await dashboardController.getVisitorStatisticsCards({
         startDate: req.validatedQuery.startDate,
         endDate: req.validatedQuery.endDate,
         buildingIds,
       });
+
       res.json({
         status: "success",
         data: stats,
@@ -445,19 +475,28 @@ router.get(
       if (req.currentAdmin.buildingId) {
         buildingIds.push(req.currentAdmin.buildingId);
       } else {
-        (
-          await buildingController.getBuildings({
-            propertyId: req.currentAdmin.propertyId,
-          })
-        ).map((building) => {
-          buildingIds.push(building.id);
+        const buildings = await buildingController.getBuildings({
+          propertyId: req.currentAdmin.propertyId,
+        });
+        buildingIds = buildings.map((building) => building.id);
+      }
+
+      // Return empty stats if no buildings found
+      if (buildingIds.length === 0) {
+        return sendResponse(res, {
+          totalVisitors: 0,
+          visitorsThisWeek: 0,
+          pendingApprovals: 0,
+          visitorsToday: 0,
         });
       }
+
       const stats = await dashboardController.getVisitorStatisticsTopCards({
         buildingIds,
         startDate: req.validatedQuery.startDate,
         endDate: req.validatedQuery.endDate,
       });
+
       sendResponse(res, stats);
     } catch (error) {
       error.reference = error.reference
@@ -480,19 +519,23 @@ router.get(
       if (req.currentAdmin.buildingId) {
         buildingIds.push(req.currentAdmin.buildingId);
       } else {
-        (
-          await buildingController.getBuildings({
-            propertyId: req.currentAdmin.propertyId,
-          })
-        ).map((building) => {
-          buildingIds.push(building.id);
+        const buildings = await buildingController.getBuildings({
+          propertyId: req.currentAdmin.propertyId,
         });
+        buildingIds = buildings.map((building) => building.id);
       }
+
+      // Return empty delivery stats if no buildings found
+      if (buildingIds.length === 0) {
+        return sendResponse(res, [{ count: 0, company: "Others" }]);
+      }
+
       const stats = await dashboardController.getVisitorStatisticsByCompanies({
         buildingIds,
         startDate: req.validatedQuery.startDate,
         endDate: req.validatedQuery.endDate,
       });
+
       sendResponse(res, stats);
     } catch (error) {
       error.reference = error.reference

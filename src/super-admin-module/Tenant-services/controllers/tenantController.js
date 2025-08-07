@@ -256,7 +256,7 @@ exports.getTenantById = async (req, res, next) => {
 
 exports.updateTenant = async (req, res, next) => {
   try {
-    const { tenant_id } = req.params;
+    const { tenant_id, id } = req.params;
 
     // Only allow updatable fields (removed admin_user_password)
     const allowedFields = [
@@ -279,7 +279,7 @@ exports.updateTenant = async (req, res, next) => {
     }
 
     const [updated] = await Tenant.update(updateData, {
-      where: { connected_admin_id: tenant_id },
+      where: { connected_admin_id: tenant_id || id },
     });
 
     if (!updated) {
@@ -520,20 +520,25 @@ exports.tenantLogin = async (req, res, next) => {
           .status(401)
           .json({ success: false, code: 401, message: "Invalid credentials" });
       }
+
+      // let tenant = await Tenant.findByPk(user.tenant_id);
       // No sidebarData logic, just return a_t: 'tenant_user'
       // const accessToken = jwt.sign({ id: user.user_id, email: user.email, type: 'tenant_user', tenant_id: user.tenant_id }, SECRET, { expiresIn: '1h' });
-      const accessToken = await generate_Access_Token_Super_Admin(
-        {
-          id: user.user_id,
-          email: user.email,
-          type: "tenant_user",
-          tenant_id: user.tenant_id,
-        },
-        ACCESS_KEY,
-        TOKEN_EXPIRY_TIMES[env].REFRESH_TOKEN_EXPIRY_TIME
-      );
+      // const accessToken = await generate_Access_Token_Super_Admin(
+      //   {
+      //     id: user.user_id,
+      //     email: user.email,
+      //     type: "tenant_user",
+      //     tenant_id: user.tenant_id,
+      //   },
+      //   ACCESS_KEY,
+      //   TOKEN_EXPIRY_TIMES[env].REFRESH_TOKEN_EXPIRY_TIME
+      // );
 
-      const refreshToken = "";
+      const [refreshToken, accessToken] = await Promise.all([
+        generateRefreshToken(user.tenant_id, USER_TYPES.ADMIN),
+        generateAccessToken(user.tenant_id, USER_TYPES.ADMIN),
+      ]);
       const a_t = "tenant_user";
       return res.status(200).json({
         accessToken,
